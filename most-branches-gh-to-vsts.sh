@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-#This syncs with -f all branches except VSTS branches that have 'vsts-pr' as name prefixes
+#This syncs with -f all branches except VSTS branches that have 'vsts-pr' as name prefixes. Must pass repo name TODO: validate repo name is being passed.
 echo "=============================================================================="
 echo "Fetching branches from Strongmind/Github remote"
 git branch -r | grep -v '\->' | while read -r remote; do git branch --track "${remote#origin/}" "$remote"; done
