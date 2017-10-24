@@ -18,7 +18,6 @@
 #
 
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper.rb')
-require 'db/migrate/20150709205405_create_k12_theme.rb'
 
 describe BrandConfig do
   it "should create an instance with a parent_md5" do
@@ -225,10 +224,5 @@ describe BrandConfig do
 
   it "returns a default config" do
     expect(BrandConfig.default).to be_present
-  end
-
-  it "returns a k12 config" do
-    CreateK12Theme.new.up
-    expect(BrandConfig.k12_config).to be_present
   end
 end
