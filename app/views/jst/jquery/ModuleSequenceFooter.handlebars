@@ -1,20 +1,66 @@
 <div class='module-sequence-padding'></div>
 <div class='module-sequence-footer' role="navigation" aria-label="{{#t}}Module Navigation{{/t}}">
   <div class="module-sequence-footer-content">
-    {{#if previous.show}}
-      <a
-        href="{{previous.url}}"
-        role="button"
-        class="Button module-sequence-footer-button--previous"
-        data-tooltip="right"
-        data-html-tooltip-title="{{previous.tooltip}}"
-        aria-describedby="msf{{instanceNumber}}-previous-desc"
-      >
-        <i class="icon-mini-arrow-left"></i>{{#t 'previous'}}Previous{{/t}}
-        <span id="msf{{instanceNumber}}-previous-desc" class="hidden" hidden>{{previous.tooltipText}}</span>
-      </a>
-    {{/if}}
+    <div class="sm-footer-nav-container">
 
+      <div class="sm-footer-title-container">
+        <div class="sm-flow-control-cotainer">
+          {{#if previous.show}}
+
+              <a
+                href="{{previous.url}}"
+                role="button"
+                class="Button module-sequence-footer-button--previous"
+                data-tooltip="right"
+                data-html-tooltip-title="{{previous.tooltip}}"
+                aria-describedby="msf{{instanceNumber}}-previous-desc"
+              >
+                <i class="icon-mini-arrow-left"></i>{{#t 'previous'}}Previous{{/t}}
+                <span id="msf{{instanceNumber}}-previous-desc" class="hidden" hidden>{{previous.tooltipText}}</span>
+              </a>
+
+          {{/if}}
+        </div>
+
+        {{#if showModule}}
+          <div class="sm-module-footer">
+            <ul class="sm-module-footer__nav">
+              {{#each items}}
+                <li id="{{id}}">
+                  <div class="sm-footer-progress-container">
+                    <a href="{{html_url}}" data-tooltip="top"
+                  data-html-tooltip-title="{{title}}" class="{{#ifEqual id ../currentItem.id }}current{{/ifEqual}}">
+                    </a>
+                    {{#unless @last }}
+                      <span class="sm-progress-connector {{#ifEqual id ../currentItem.id }}current{{/ifEqual}}"></span>
+                    {{/unless}}
+                  </div>
+              </li>
+              {{/each}}
+            </ul>
+          </div>
+        {{/if}}
+
+        <div class="sm-flow-control-cotainer">
+          {{#if next.show}}
+
+              <a
+                href="{{next.url}}"
+                role="button"
+                class="Button module-sequence-footer-button--next"
+                data-tooltip="left"
+                data-html-tooltip-title="{{next.tooltip}}"
+                aria-describedby="msf{{instanceNumber}}-next-desc"
+              >
+                {{#t 'next'}}Next{{/t}}<i class="icon-mini-arrow-right"></i>
+                <span id="msf{{instanceNumber}}-next-desc" class="hidden" hidden>{{next.tooltipText}}</span>
+              </a>
+          {{/if}}
+        </div>
+      </div>
+
+    </div>
+    <!-- #PR-74: they added that if statement and we kept out footer logic. We will need to reconsile those in the UI-->
     {{#if next.show}}
       <span class="module-sequence-footer-button--next" data-tooltip="left" data-html-tooltip-title="{{next.tooltip}}">
         <a

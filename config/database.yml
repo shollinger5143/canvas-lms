@@ -7,7 +7,7 @@ common: &common
   password: <%= ENV['DB_PASS'] %>
   timeout: 5000
   prepared_statements: false
-  
+
 production:
   <<: *common
   database: <%= ENV['DB_NAME'] %>

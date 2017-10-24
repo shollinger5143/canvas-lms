@@ -39,7 +39,6 @@
     :wiki_page_menu => WikiPage
   }
 %>
-
 <li
   id="context_module_item_<%= module_item ? module_item.id : "blank" %>"
   style="<%= hidden unless module_item %>"
@@ -72,6 +71,9 @@
         <i class="icon-drag-handle" aria-hidden="true"></i>
       </span>
     </div>
+    <% end %>
+    <% if module_item && module_item.content_type_class == 'context_module_sub_header' %>
+        <i class="context_module_sub_header_expander_<%= module_item ? module_item.id : "blank" %> context_module_sub_header_expander icon-arrow-open-right"></i>
     <% end %>
 
     <span class="type_icon" title="<%= module_item_translated_content_type(module_item) %>">
@@ -193,7 +195,7 @@
       </div>
     </div>
     <% if !editable %>
-      <div class="module-item-status-icon"></div> <%# going to set this in JS-land, not here %>
+      <div class="module-item-status-icon" style="display: none"></div> <%# going to set this in JS-land, not here %>
     <% end %>
     <% if editable || module_item.nil? %>
       <div class="ig-admin">

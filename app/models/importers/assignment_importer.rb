@@ -57,6 +57,7 @@ module Importers
       assignment_records.compact!
 
       assignment_ids = assignment_records.map(&:id)
+      #PR-74: large db resons
       Submission.suspend_callbacks(:update_assignment, :touch_graders) do
         # execute this query against the slave, so that it will use a cursor, and not
         # attempt to order by submissions.id, because in very large dbs that can cause

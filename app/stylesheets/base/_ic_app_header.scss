@@ -30,11 +30,13 @@
 // ic-brand-global-nav-ic-icon-svg-fill--active
 // ic-brand-global-nav-logo-bgd
 
-$ic-global-nav-link-hover: rgba(black, 0.2);
-$ic-global-nav-link-active:  rgba(black, 0.4);
+$ic-global-nav-menu-item__badge-border: darken($ic-brand-global-nav-bgd, 5%);
+$ic-global-nav-link-hover: darken($ic-brand-global-nav-bgd, 5%);
+$ic-global-nav-link-active:  darken($ic-brand-global-nav-bgd, 8%);
 $ic-masquerade-color: $ic-color-action;
 $ic-subnav-panel-bgd: $ic-color-light;
 $ic-subnav-tray-bgd: black;
+$ic-logomark-url: url("/images/svg-icons/strongmind-global-nav-logo.svg");
 $ic-tooltip-arrow-size: 0.375rem;
 
 
@@ -47,7 +49,7 @@ $ic-tooltip-arrow-size: 0.375rem;
   flex-direction: column;
   width: $ic-header-primary-width - 30;
   z-index: 100;
-  background-color: var(--ic-brand-global-nav-bgd);
+  background-color: $ic-brand-global-nav-bgd;
 }
 
 .ic-app-header__main-navigation {
@@ -62,18 +64,23 @@ $ic-tooltip-arrow-size: 0.375rem;
   bottom: 0;
   z-index: 1;
   width: 100%;
+  background-color: rgba($ic-brand-global-nav-bgd, 0.8);
 }
 
 .ic-app-header__menu-list {
   @include reset-list;
 }
 
-.ic-app-header__menu-list-item {
+li.ic-app-header__menu-list-item {
   box-sizing: border-box;
+  overflow: hidden;
+  margin-bottom: 10px;
 
   &.ic-app-header__menu-list-item--active {
     .ic-app-header__menu-list-link {
-      background: $ic-color-light;
+      background: $ic-brand-white;
+      display: block;
+      overflow: hidden;
 
       body:not(.primary-nav-expanded) & {
         &:hover, &:focus {
@@ -87,7 +94,7 @@ $ic-tooltip-arrow-size: 0.375rem;
       }
     }
     .ic-icon-svg {
-      fill: var(--ic-brand-global-nav-ic-icon-svg-fill--active);
+      fill: $ic-brand-global-nav-ic-icon-svg-fill--active;
     }
     .ic-avatar {
       border-color: $ic-border-light;
@@ -96,7 +103,7 @@ $ic-tooltip-arrow-size: 0.375rem;
       }
     }
     .menu-item-icon-container {
-      color: var(--ic-brand-global-nav-ic-icon-svg-fill--active);
+      color: $ic-brand-global-nav-ic-icon-svg-fill--active;
 
       .menu-item__badge {
         @include primary-nav-badge-border($ic-color-light);
@@ -108,12 +115,13 @@ $ic-tooltip-arrow-size: 0.375rem;
 .ic-app-header__menu-list-link {
   box-sizing: border-box;
   transition:
-    background-color 0.3s,
-    padding 0.3s;
+  background-color 0.3s,
+  padding 0.3s;
   position: relative;
   text-align: center;
   display: block;
-  color: var(--ic-brand-global-nav-menu-item__text-color);
+  overflow: hidden;
+  color: $ic-brand-global-nav-menu-item__text-color;
 
   &:not(.ic-app-header__menu-list-link--nav-toggle) {
     padding: 0.25rem 0;
@@ -137,14 +145,17 @@ $ic-tooltip-arrow-size: 0.375rem;
   }
 
   &:hover, &:focus {
-    background-color: $ic-global-nav-link-hover;
+    background-color: $sm-brand-dark;
     @if $use_high_contrast == false {
       text-decoration: none;
       outline: none;
     }
     .ic-avatar {
-      border-color: var(--ic-brand-global-nav-avatar-border);
+      border-color: $ic-brand-global-nav-avatar-border;
       &.ic-avatar--fake-student { border-color: $ic-masquerade-color; }
+    }
+    .menu-item__badge {
+      @include primary-nav-badge-border($ic-global-nav-menu-item__badge-border);
     }
     .menu-item__text {
       transform: translate3d($ic-tooltip-arrow-size, 0, 0);
@@ -161,7 +172,7 @@ $ic-tooltip-arrow-size: 0.375rem;
     width: 26px;
     display: inline-block;
     vertical-align: middle;
-    fill: var(--ic-brand-global-nav-ic-icon-svg-fill);
+    fill: $ic-brand-global-nav-ic-icon-svg-fill;
   }
 
   // Need to provide heights for IE11
@@ -199,7 +210,7 @@ button.ic-app-header__menu-list-link {
 .ic-avatar {
   overflow: hidden;
   border-radius: 100%;
-  border: 2px solid var(--ic-brand-global-nav-avatar-border);
+  border: 2px solid $ic-brand-global-nav-avatar-border;
   width: 50px; height: 50px;
   box-sizing: border-box;
   display: inline-block;
@@ -211,9 +222,12 @@ button.ic-app-header__menu-list-link {
   transform: translate3d(0,0,0);
   position: relative;
   z-index: 1;
-  width: $ic-sp*4;
+  width: 30px;
+  height: 30px;
   margin: 0 auto;
-  color: var(--ic-brand-global-nav-ic-icon-svg-fill);
+  color: $ic-brand-global-nav-ic-icon-svg-fill;
+  float: left;
+  margin-left: 15px;
 
   .ic-avatar {
     transform: translate3d(0,0,0);
@@ -233,7 +247,7 @@ button.ic-app-header__menu-list-link {
 
   pointer-events: none;
   box-sizing: border-box;
-  background-color: var(--ic-brand-global-nav-ic-icon-svg-fill--active);
+  background-color: $ic-brand-global-nav-ic-icon-svg-fill--active;
   position: absolute;
   left: 100%;
   top: 50%;
@@ -275,15 +289,31 @@ button.ic-app-header__menu-list-link {
   transition: all 0.3s ease-out;
   position: absolute;
   top: -0.5em; right: 0;
-  background: var(--ic-brand-global-nav-menu-item__badge-bgd);
-  color: var(--ic-brand-global-nav-menu-item__badge-text);
-  @include primary-nav-badge-border(var(--ic-brand-global-nav-bgd));
+  background: $ic-brand-global-nav-menu-item__badge-bgd;
+  color: $ic-brand-global-nav-menu-item__badge-text;
+  @include primary-nav-badge-border($ic-brand-global-nav-bgd);
+
+  @if $use_high_contrast {
+    box-shadow: 0 0 0 2px $ic-color-light;
+  }
 }
 
 .ic-app-header__logomark-container {
   width: 100%;
-  background-color: var(--ic-brand-global-nav-logo-bgd);
+  background-color: $sm-brand-dark;
   box-sizing: border-box;
+  margin-bottom: 20px;
+
+  @if $ic-brand-header-image != $ic-logomark-url {
+    padding: 0;
+  }
+  @else {
+    padding: 0 $ic-sp/2;
+
+    body.primary-nav-expanded & {
+      padding: 20px $ic-sp + 2;
+    }
+  }
   padding: 0;
 }
 
@@ -291,16 +321,16 @@ button.ic-app-header__menu-list-link {
   display: block;
   width: 100%;
   overflow: hidden;
-  margin: 0 auto;
-  background-image: var(--ic-brand-header-image);
+  margin: 0 auto 20px auto;
+  background-image: $ic-brand-header-image;
   background-position: 50%;
   background-repeat: no-repeat;
   background-size: contain;
   transition: transform 0.3s;
-  height: 75px;
+  height: 70px;
 
   body.primary-nav-expanded & {
-    height: 85px;
+    height: 70px;
   }
 }
 // set to block to avoid any exta inline spacing at bottom
@@ -330,14 +360,14 @@ body.primary-nav-expanded {
         color: var(--ic-link-color);
       }
       @else {
-        color: var(--ic-brand-global-nav-menu-item__text-color--active);
+        color: $ic-brand-global-nav-menu-item__text-color--active;
       }
     }
   }
 
   .ic-app-header__menu-list-link {
     &:not(.ic-app-header__menu-list-link--nav-toggle) {
-      padding: 0.5625rem 0;
+      padding: 10px 0;
     }
 
     &.ic-app-header__menu-list-link--nav-toggle {
@@ -356,22 +386,25 @@ body.primary-nav-expanded {
   .menu-item__text {
     transition: none;
     position: static;
-    left: auto;
-    top: auto;
+    float: left;
     transform: none;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-family: $ic-font-family;
     opacity: 1;
-    text-align: center;
+    text-align: left;
     display: block;
     line-height: 1.4;
     border-radius: 0;
-    margin: $ic-sp/4 0 0;
+    margin: 5px 0 0 10px;
     padding: 0;
     background: transparent;
-    color: var(--ic-brand-global-nav-menu-item__text-color);
+    color: $ic-brand-global-nav-menu-item__text-color;
     white-space: normal;
     word-wrap: break-word;
     padding-left: 0.25rem;
     padding-right: 0.25rem;
+    font-size: 16px;
 
     &::after {
       display: none;
@@ -534,7 +567,7 @@ body.primary-nav-expanded {
   display: table;
   font-size: 1em;
   line-height: inherit;
-  font-weight: bold;
+  font-weight: 500;
   margin: 0;
   padding: 0;
   border: 0;

@@ -53,7 +53,8 @@ class ContextModulesController < ApplicationController
       @modules = @context.modules_visible_to(@current_user)
       @modules.each(&:check_for_stale_cache_after_unlocking!)
       @collapsed_modules = ContextModuleProgression.for_user(@current_user).for_modules(@modules).pluck(:context_module_id, :collapsed).select{|cm_id, collapsed| !!collapsed }.map(&:first)
-
+      @current_modules = ContextModuleProgression.for_user(@current_user).for_modules(@modules).pluck(:context_module_id, :workflow_state).select{|cm_id, workflow_state| workflow_state === "started"}.map(&:first)
+      @workflow_modules = ContextModuleProgression.for_user(@current_user).for_modules(@modules).order(:created_at).pluck(:context_module_id, :workflow_state)
       @can_edit = can_do(@context, @current_user, :manage_content)
       @is_student = @context.grants_right?(@current_user, session, :participate_as_student)
       @can_view_unpublished = @context.grants_right?(@current_user, session, :read_as_admin)
@@ -103,6 +104,24 @@ class ContextModulesController < ApplicationController
     if authorized_action(@context, @current_user, :read)
       log_asset_access([ "modules", @context ], "modules", "other")
       load_modules
+
+      def image
+        if @context.image_id.present?
+          @context.shard.activate do
+            @context.attachments.active.where(id: @context.image_id).first.download_url rescue nil
+          end
+        elsif @context.image_url
+          @context.image_url
+        end
+      end
+
+      @image = image
+      if @image != ""
+        @display_header_image = true
+      else
+        @display_header_image = false
+      end
+      
 
       set_tutorial_js_env
 
@@ -169,7 +188,7 @@ class ContextModulesController < ApplicationController
   def item_redirect
     if authorized_action(@context, @current_user, :read)
       @tag = @context.context_module_tags.not_deleted.find(params[:id])
-
+      @distraction_free = true
       if !(@tag.unpublished? || @tag.context_module.unpublished?) || authorized_action(@tag.context_module, @current_user, :view_unpublished_items)
         reevaluate_modules_if_locked(@tag)
         @progression = @tag.context_module.evaluate_for(@current_user) if @tag.context_module

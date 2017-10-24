@@ -1661,7 +1661,6 @@ class CoursesController < ApplicationController
       check_for_readonly_enrollment_state
 
       log_asset_access([ "home", @context ], "home", "other")
-
       check_incomplete_registration
 
       add_crumb(@context.nickname_for(@current_user, :short_name), url_for(@context), :id => "crumb_#{@context.asset_string}")
@@ -1689,7 +1688,25 @@ class CoursesController < ApplicationController
         js_env(:SHOW_ANNOUNCEMENTS => true, :ANNOUNCEMENT_COURSE_ID => @context.id, :ANNOUNCEMENT_LIMIT => @context.home_page_announcement_limit)
       end
 
+      def image
+        if @context.image_id.present?
+          @context.shard.activate do
+            @context.attachments.active.where(id: @context.image_id).first.download_url rescue nil
+          end
+        elsif @context.image_url
+          @context.image_url
+        end
+      end
+      @image = image
+
+      if @image != ""
+        @display_header_image = true
+      else
+        @display_header_image = false
+      end
+
       @contexts = [@context]
+
       case @course_home_view
       when "wiki"
         @wiki = @context.wiki

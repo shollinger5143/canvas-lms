@@ -25,6 +25,8 @@ import updateSubnavMenuToggle from 'jsx/subnav_menu/updateSubnavMenuToggle'
 import splitAssetString from 'compiled/str/splitAssetString'
 import {isMathMLOnPage, loadMathJax} from 'mathml'
 
+import ToolLaunchResizer from '../../../public/javascripts/lti/tool_launch_resizer'
+
 // modules that do their own thing on every page that simply need to be required
 import 'translations/_core_en'
 import 'jquery.ajaxJSON'
@@ -45,6 +47,7 @@ import 'compiled/behaviors/instructure_inline_media_comment'
 import 'compiled/behaviors/ping'
 import 'LtiThumbnailLauncher'
 import 'compiled/badge_counts'
+import 'vendor/bootstrap/bootstrap-dropdown'
 
 // Other stuff several bundles use.
 // If any of these really arn't used on most pages,
@@ -90,14 +93,27 @@ function resetMenuItemTabIndexes () {
 
 $(resetMenuItemTabIndexes)
 $(window).on('resize', _.debounce(resetMenuItemTabIndexes, 50))
-$('body').on('click', '#courseMenuToggle', () => {
-  $('body').toggleClass('course-menu-expanded')
-  updateSubnavMenuToggle()
-  $('#left-side').css({
-    display: $('body').hasClass('course-menu-expanded') ? 'block' : 'none'
-  })
+$('body').on('click', '#distractionFreeToggle', () => {
+  $('body').toggleClass('no-headers distraction-free')
 
+  if($('body').hasClass('no-headers distraction-free')){
+    window.localStorage.setItem("distraction_free", true)
+  }else{
+    window.localStorage.removeItem("distraction_free")
+  }
   resetMenuItemTabIndexes()
+  var $tool_content_wrapper = $('.tool_content_wrapper');
+
+  var min_tool_height, canvas_chrome_height;
+  const toolResizer = new ToolLaunchResizer(min_tool_height);
+
+  if ( !$('body').hasClass('ic-full-screen-lti-tool') ) {
+    canvas_chrome_height = $tool_content_wrapper.offset().top + $('#footer').outerHeight(true);
+  }
+
+  if (!$tool_content_wrapper.data('height_overridden')) {
+    toolResizer.resize_tool_content_wrapper($(window).height() - canvas_chrome_height - $('#sequence_footer').outerHeight(true));
+  }
 })
 
 // Backbone routes
@@ -117,6 +133,18 @@ if (
   }, 'NewUserTutorialsAsyncChunk')
 }
 
+if(!window.ENV.IS_STUDENT){
+  $(document).ready(function(){
+    let showTeacherTools = $("#sm-teacher-tools").find("a").length;
+    if (showTeacherTools > 0 ){
+      $(".sm-teacher-tools-container").show();
+    }
+    let activeDropdown = $("#sm-teacher-tools").find("a").hasClass("active")
+    if(activeDropdown){
+        $('.sm-left-nav-toggler').addClass("active");
+    }
+  })
+}
 // edge < 15 does not support css vars
 // edge >= 15 claims to, but is currently broken
 const edge = window.navigator.userAgent.indexOf("Edge") > -1
@@ -127,6 +155,13 @@ if (!supportsCSSVars) {
   }, 'canvasCssVariablesPolyfill')
 }
 
-$(() => {
+$(document).ready(() => {
   if (isMathMLOnPage()) loadMathJax('MML_HTMLorMML.js')
+  let distractionFree = window.localStorage.getItem("distraction_free");
+  let toggleButton = $("#distractionFreeToggle").length === 0
+
+  if (distractionFree && !toggleButton){
+    $('body').toggleClass('no-headers distraction-free')
+  }
+  $('body').fadeIn(500)
 })

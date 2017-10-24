@@ -21,6 +21,8 @@
   course_home ||= false
   js_env({
     :COLLAPSED_MODULES => @collapsed_modules,
+    :CURRENT_MODULES => @current_modules,
+    :WORKFLOW_MODULES => @workflow_modules,
     :CAN_MANAGE_MODULES => @can_edit,
     :IS_STUDENT => can_do(@context, @current_user, :participate_as_student),
     :COURSE_ID => @context.id,
@@ -76,7 +78,14 @@
   </div>
 </div>
 
-<div class="item-group-container" id="context_modules_sortable_container">
+<% if @can_edit %>
+  <div class="hidden-readable screenreader-only" aria-label="<%= t('keyboard instructions') %>">
+    <%= t('modules_keyboard_hint_updated',
+          'Warning: For improved accessibility in reordering Modules (or Module items), please use the Move To Dialog option found in the menu.') %>
+  </div>
+<% end %>
+
+<div class="item-group-container sm-course-overview-container" id="context_modules_sortable_container">
   <div id="no_context_modules_message" style="display:none;">
     <% if can_do(@context.context_modules.temp_record, @current_user, :create) %>
       <div id="modules_homepage_user_create"></div>
@@ -86,6 +95,7 @@
   </div>
   <div
     id="context_modules"
+    style="display:none"
     aria-label="<%= t('headings.course_modules', %{Course Modules}) %>"
     class="ig-list <%= 'editable' if @can_edit %>"
   >
@@ -227,6 +237,7 @@
 <% end %>
 <div style="display: none;">
   <a href="<%= context_url(@context, :progressions_context_context_modules_url) %>" class="progression_list_url">&nbsp;</a>
+  <a href="<%= api_v1_course_context_modules_url(@context.id)%>?include=items" class="course_items_json_url">&nbsp;</a>
   <a href="<%= context_url(@context, :context_context_modules_assignment_info_url) %>" class="assignment_info_url">&nbsp;</a>
   <select id="module_list" aria-label="<%= t('Select prerequisite module') %>">
     <option value="">[ <%= t('select_module.instructions', %{Select Module}) %> ]</option>

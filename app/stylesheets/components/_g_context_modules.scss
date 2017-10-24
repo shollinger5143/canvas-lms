@@ -26,11 +26,6 @@ $context_module_bg_color: #f2f3f4;
 }
 
 .context_module {
-  border: {
-    top: 1px dotted $context_module_border_color;
-    bottom: 1px dotted $context_module_border_color;
-  };
-  background-color: $context_module_bg_color;
   min-width: 20px;
   margin-bottom: 15px;
   .links a, .reorder_module_link, .move_item_link {
@@ -49,10 +44,6 @@ $context_module_bg_color: #f2f3f4;
     white-space: nowrap;
   }
   .header {
-    background-color: darken($context_module_bg_color, 5%);
-    border-bottom: 1px dotted #aaa;
-    padding: 6px 0;
-    color: #323232;
     .links {
       float: right;
     }
@@ -75,8 +66,26 @@ $context_module_bg_color: #f2f3f4;
     align-items: center;
 
     .module-item-status-icon {
-      width: 16px;
-      padding-right: 10px;
+      width: 24px;
+      height: 24px;
+      padding: 5px;
+      background-color: $ic-brand-primary;
+      border-radius: 50%;
+      display: flex;
+      &.unstarted-icon {
+        background-color: white;
+        border-radius: 50%;
+        border: 3px solid $ic-brand-primary;
+        box-sizing: border-box;
+        height: 34px;
+        width: 34px;
+      }
+
+      i{
+        color: #FFF;
+        margin: auto;
+      }
+
 
       .icon-mark-as-read {
         opacity: 0.4;
@@ -255,9 +264,13 @@ $context_module_bg_color: #f2f3f4;
   div.footer {
     @include clearfix;
     padding: 13px 10px 2px;
-    margin-left: 15px;
     color: #666;
   }
+
+  div.footer.sm-footer{
+    background-color: #FFF;
+  }
+
   .prerequisites .criterion {
     float: left;
     border: 1px solid #aaa;
@@ -267,6 +280,50 @@ $context_module_bg_color: #f2f3f4;
     font-size: 0.8em;
     color: #444;
   }
+}
+
+.ig-header-title.collapse_module_link .sm-data-requirement-text{
+  font-size: 12px;
+  color: var(--ic-brand-shade-3);
+  font-style: italic;
+  margin-top: 10px;
+  margin-left: 35px;
+}
+
+.sm-unit-header_progress-container{
+  width: 150px;
+  position: relative;
+}
+
+.sm-progress-title{
+  font-size: 12px;
+  color: var(--ic-brand-shade-3);
+  text-align: center;
+}
+
+.module-item-title{
+  padding-left: 15px;
+}
+
+.context_module_sub_header_expander{
+  cursor: pointer;
+}
+
+.sm-unit-header_progress-background{
+    background-color: var(--ic-brand-button--secondary-bgd-darkened-15);
+    position: absolute;
+    width: 100%;
+    border-radius: 5px;
+    height: 10px;
+}
+
+.sm-unit-header_progress-bar{
+  background-color: var(--ic-brand-tertiary);
+  position: absolute;
+  left: 0;
+  width: 0%;
+  border-radius: 5px;
+  height: 10px;
 }
 
 .context_module_item {

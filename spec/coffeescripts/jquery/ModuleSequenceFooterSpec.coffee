@@ -138,6 +138,7 @@ define [
      }
 
   test 'there is no button when next or prev data is null', ->
+    # PR-74: clean up. added dependency on helper method
     @server.respondWith "GET", default_course_url, server_200_response(nullButtonData)
     @$testEl.moduleSequenceFooter({courseID: 42, assetType: 'Assignment', assetID: 123})
     @server.respond()

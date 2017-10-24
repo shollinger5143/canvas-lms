@@ -28,7 +28,7 @@
 }
 html, body {
   height: 100%;
-  background: $ic-color-light;
+  background-color: $ic-brand-primary;
   margin: 0;
   padding: 0;
   color: $ic-font-color-dark;
@@ -37,6 +37,50 @@ html, body {
   font-family: $ic-font-family !important;
 }
 
+.sm-button{
+    width: 100%;
+    margin: $ic-sp 0 $ic-sp 0;
+    padding: $ic-sp $ic-sp*3;
+    background-color: $ic-brand-secondary;
+    color: $ic-brand-Login-Content-password-text-color;
+    border: 1px solid $ic-brand-Login-Content-password-text-color;
+    overflow: visible;
+      &:hover{
+      background-color: darken($sm-yellow-4, 10%);
+      }
+}
+
+.sm-form{
+  height: 46px;
+  border-radius: 4px;
+  width: 100%;
+    display: block;
+    box-shadow: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease-out;
+    border-width: 1px;
+    border-style: solid;
+    outline-color: transparent;
+    outline-offset: -12px;
+    background: #FFFFFF;
+    padding: 8px 12px;
+    -webkit-appearance: none;
+    border-color: #d8e0e6;
+    outline-style: solid;
+    outline-width: $ic-sp;
+}
+
+.ic-Login-footer .ic-Login-footer__links {
+    padding: 36px;
+    text-align: center;
+    position: absolute;
+    color: $ic-brand-white;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    @include fontSize($ic-font-size--xsmall);
+  }
+
 #f1_container {
   display: flex;
   justify-content: center;
@@ -44,20 +88,25 @@ html, body {
 }
 
 #f1_card {
-  width: 296px;
+  width: 280px;
   height: 100%;
 }
 
 .mobileLogin-Header {
   z-index: 1;
-  background-image: url("/images/mobile_login/canvas_logo_login.svg");
   background-position: center;
   background-repeat: no-repeat;
   background-size: 156px 108px;
-  min-height: 156px;
+  margin-top: $ic-sp*4;
 }
 .face {
-  margin-top: 15px;
+  margin-top: $ic-sp*3;
+  padding: 0 $ic-sp 0 $ic-sp;
+}
+.mobile_courseware{
+  color: $ic-brand-white;
+  text-align: center;
+  margin-top: $ic-sp*-1
 }
 
 .face.back {
@@ -78,15 +127,20 @@ p {
 
 .flip-to-back, .flip-to-front {
   margin: 0;
+  padding: $ic-sp;
+  @include fontSize($ic-font-size--small);
+}
+.open-source-link{
+  padding: $ic-sp;
 }
 .forgotBlock {
-  color: $ic-brand-primary;
+  color: $ic-brand-white;
   margin: $ic-sp*2 auto 0;
   text-align: center;
 }
 input[type="text"], [type="email"], [type="password"] {
   padding: 0px 12px;
-  @include fontSize(16px);
+  @include fontSize($ic-font-size--small);
 }
 input::-webkit-input-placeholder {
   color: $ic-color-medium;
@@ -102,5 +156,5 @@ input::-webkit-input-placeholder {
   display: none;
 }
 .button_box .Button {
-  padding-bottom: $ic-sp/2;  
+  padding-bottom: $ic-sp/2;
 }

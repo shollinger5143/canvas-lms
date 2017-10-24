@@ -76,6 +76,7 @@ class CourseProgress
     end
   end
 
+  #PR-74: several attributes removed
   def requirements
     # e.g. [{id: 1, type: 'must_view'}, {id: 2, type: 'must_view'}]
     @_requirements ||= modules.flat_map { |m| m.completion_requirements_visible_to(@user, :is_teacher => false) }.uniq
