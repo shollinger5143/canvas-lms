@@ -21,3 +21,19 @@ development:
   timeout: 5000
   prepared_statements: false
   pool: <%= ENV["DB_POOL"] || 5 %>
+
+test:
+  adapter: postgresql
+  host: <%= ENV['DB_HOST'] %>
+  port: <%= ENV['DB_PORT'] %>
+  encoding: utf8
+  username: <%= ENV['DB_USER'] %>
+  database: <%= ENV['DB_NAME'] %>
+  password: <%= ENV['DB_PASS'] %>
+  timeout: 5000
+  prepared_statements: false
+  pool: <%= ENV["DB_POOL"] || 5 %>
+  shard1: <%= ENV['DB_NAME'] %>_shard1
+  shard2: <%= ENV['DB_NAME'] %>_shard2
+  test_shard_1: <%= ENV['DB_NAME'] %>_test_shard1
+  test_shard_2: _<%= ENV['DB_NAME'] %>test_shard2
