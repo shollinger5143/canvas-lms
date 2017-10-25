@@ -75,6 +75,7 @@ module TestDatabaseUtils
     end
 
     def truncate_all_tables?
+      byebug
       Account.any?
     end
 
