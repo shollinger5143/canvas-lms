@@ -17,7 +17,7 @@
 
 require_relative '../../helpers/gradebook_common'
 require_relative '../../helpers/groups_common'
-require_relative '../page_objects/gradebook_page'
+require_relative '../pages/gradebook_page'
 
 describe "gradebook" do
   include_context "in-process server selenium tests"
@@ -30,6 +30,15 @@ describe "gradebook" do
   end
 
   before(:each) { user_session(@teacher) }
+
+  it "page should load within acceptable time ", priority:"1" do
+    page_load_start_time = Time.now
+    @gradebook_page.visit_gradebook(@course)
+    page_load_finish_time = Time.now
+    page_load_time = page_load_finish_time - page_load_start_time
+    Rails.logger.debug "The gradebook page /courses/#{@course}/gradebook loaded in #{page_load_time} seconds"
+    expect(page_load_time).to be > 0.0
+  end
 
   it "hides unpublished/shows published assignments", priority: "1", test_id: 210016 do
     assignment = @course.assignments.create! title: 'unpublished'

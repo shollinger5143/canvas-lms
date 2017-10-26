@@ -1,0 +1,29 @@
+test:
+  host: "localhost"
+  browser: "chrome"
+  platform: "OS X 10.12.6"
+  
+  #version: "45.0"
+  #platform: "Windows 10"
+  #remote_url: "https://instructure:secret_key@ondemand.saucelabs.com:80/wd/hub"
+  #tunnel_id: "canvas_firefox"
+  #paths:
+    # setting path works for opera, chrome, and firefox
+    # firefox: "/Applications/Firefox7.app/Contents/MacOS/firefox"
+
+# test:
+#   host: "localhost"
+#   browser: "chrome"
+#   version: "61.0"
+#   platform: "OS X 10.12"
+#   # remote_url: "https://coxaqui:07150127-7c40-4f6a-8677-9f6882e26ef2@ondemand.saucelabs.com:80"
+#   #tunnel_id: "canvas_firefox"
+#   #paths:
+#     # setting path works for opera, chrome, and firefox
+#     # firefox: "/Applications/Firefox7.app/Contents/MacOS/firefox"
+#   #remote_url: "https://instructure:secret_key@ondemand.saucelabs.com:80/wd/hub"
+# #brew cask install --appdir="/Applications" firefox
+# # To have launchd start chromedriver now and restart at login:
+# #   brew services start chromedriver
+# # Or, if you don't want/need a background service you can just run:
+# #   chromedriver

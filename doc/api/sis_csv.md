@@ -48,6 +48,15 @@ The change_threshold can be set to any integer between 1 and 100.
 
 change_threshold also impacts diffing mode.
 
+Multi Term Batch Mode
+---------------------
+
+Multi term batch mode is just like batch mode except against multiple terms.
+Multi term batch mode is run against all terms included in the same import for
+the batch. To use multi term batch mode you must also set a change_threshold. If
+you intend to remove all items with multi term batch mode, you can set the
+change_threshold to 100.
+
 Diffing Mode
 ------------
 
@@ -856,6 +865,78 @@ u411208,u411222,active
 u411208,u411295,active
 u413405,u411385,deleted
 </pre>
+
+admins.csv
+---------------
+
+<table class="sis_csv">
+<tr>
+<th>Field Name</th>
+<th>Data Type</th>
+<th>Required</th>
+<th>Sticky</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>user_id</td>
+<td>text</td>
+<td>✓</td>
+<td></td>
+<td>The User identifier from users.csv</td>
+</tr>
+<tr>
+<td>account_id</td>
+<td>text</td>
+<td>✓</td>
+<td></td>
+<td>The account identifier from accounts.csv. Uses the root_account if left blank. The collumn is required even when importing for the root_account and the value is blank.</td>
+</tr>
+<tr>
+<td>role_id</td>
+<td>text</td>
+<td>✓&#42;</td>
+<td></td>
+<td>Uses a role id, either built-in or defined by the account.</td>
+</tr>
+<tr>
+<td>role</td>
+<td>text</td>
+<td>✓&#42;</td>
+<td></td>
+<td>AccountAdmin, or a custom role defined by the account</td>
+</tr>
+<tr>
+<td>status</td>
+<td>enum</td>
+<td>✓</td>
+<td></td>
+<td>active, deleted</td>
+</tr>
+<tr>
+<td>root_account</td>
+<td>text</td>
+<td></td>
+<td></td>
+<td>The domain of the account to search for the user.</td>
+</tr>
+</table>
+
+admins.csv is optional. When importing admins that already exist in canvas the
+admin will become managed by sis. An admin cannot be deleted by running a sis
+import unless the admin is already managed by sis. Batch mode does not apply
+to the admins.csv, but diffing mode does apply to the admins.csv. Admins that
+already exist in the account will receive a notification of the new admin if
+notification preferences are set to receive this type of notification.
+
+Sample:
+
+<pre>user_id,account_id,role,status
+E411208,01103,AccountAdmin,active
+E411208,13834,AccountAdmin,deleted
+E411208,13aa3,CustomAdmin,active
+</pre>
+
+&#42; role or role_id is required.
 
 change_sis_id.csv
 ----------

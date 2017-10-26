@@ -6,7 +6,7 @@ production:
   # files_domain: "canvasfiles.example.com"
 
 test:
-  domain: localhost
+  domain: localhost:3000
 
 development:
   domain: localhost:3000

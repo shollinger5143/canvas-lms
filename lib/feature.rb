@@ -497,7 +497,7 @@ END
       description: -> { I18n.t('Enable the creation of Blueprint Courses') },
       applies_to: 'RootAccount',
       state: 'allowed',
-      beta: true,
+      beta: false,
     },
     'student_context_cards' =>
     {
@@ -557,6 +557,14 @@ END
       state: "hidden",
       beta: true,
       development: true,
+    },
+    'rubric_criterion_range' =>
+    {
+      display_name: -> { I18n.t('Rubric Criterion Range') },
+      description: -> { I18n.t('Specify max and min points to clarify boundaries of a rubric criterion rating.') },
+      applies_to: "RootAccount",
+      state: "allowed",
+      root_opt_in: true
     },
   )
 

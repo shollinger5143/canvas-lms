@@ -1,23 +1,25 @@
-production:
+common: &common
   adapter: postgresql
   host: <%= ENV['DB_HOST'] %>
   port: <%= ENV['DB_PORT'] %>
   encoding: utf8
   username: <%= ENV['DB_USER'] %>
-  database: <%= ENV['DB_NAME'] %>
   password: <%= ENV['DB_PASS'] %>
   timeout: 5000
   prepared_statements: false
-  pool: <%= ENV["DB_POOL"] || 5 %>
+
+production:
+  <<: *common
+  database: <%= ENV['DB_NAME'] %>
 
 development:
-  adapter: postgresql
-  host: <%= ENV['DB_HOST'] %>
-  port: <%= ENV['DB_PORT'] %>
-  encoding: utf8
-  username: <%= ENV['DB_USER'] %>
+  <<: *common
   database: <%= ENV['DB_NAME'] %>
-  password: <%= ENV['DB_PASS'] %>
-  timeout: 5000
-  prepared_statements: false
-  pool: <%= ENV["DB_POOL"] || 5 %>
+
+test:
+  <<: *common
+  database: canvas_test_rails3_<%= ENV['TEST_ENV_NUMBER'] %>
+  shard1: canvas_test_rails3_shard1
+  shard2: canvas_test_rails3_shard2
+  test_shard_1: canvas_test_rails3_shard1
+  test_shard_2: canvas_test_rails3_shard2

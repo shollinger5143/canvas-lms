@@ -299,7 +299,7 @@ describe "Default Account Reports" do
       Notification.where(name: "Report Generated").first_or_create
       Notification.where(name: "Report Generation Failed").first_or_create
       @account = Account.create(name: 'New Account', default_time_zone: 'UTC')
-      @admin = account_admin_user(:account => @account)
+      @admin = account_admin_user(account: @account, name: 'default admin')
       @default_term = @account.default_enrollment_term
     end
 
@@ -816,6 +816,8 @@ describe "Default Account Reports" do
         parameters = {}
         parameters["enrollment_term_id"] = @default_term.id
         parameters["enrollments"] = true
+        # this extra pseudonym should not cause an extra row in the output
+        @user2.pseudonyms.create!(unique_id: "pseudonym2@instructure.com")
         parsed = read_report("sis_export_csv", {params: parameters, order: [1, 0]})
         expect(parsed.length).to eq 4
 
@@ -842,51 +844,54 @@ describe "Default Account Reports" do
         parsed = read_report("provisioning_csv", {params: parameters, order: "skip"})
         expect(parsed).to match_array [[@course1.id.to_s, "SIS_COURSE_ID_1", @user6.id.to_s, nil,
                                         "teacher", teacher_role.id.to_s, @enrollment10.course_section_id.to_s,
-                                        nil, "concluded", nil, nil, "false", 'TeacherEnrollment', "false"],
+                                        nil, "concluded", nil, nil, "false", 'TeacherEnrollment', 'false',
+                                        @enrollment10.id.to_s],
                                        [@course1.id.to_s, "SIS_COURSE_ID_1", @user1.id.to_s, "user_sis_id_01",
                                         "observer", observer_role.id.to_s,
                                         @enrollment1.course_section_id.to_s, nil, "active", nil, nil, "true",
-                                        'ObserverEnrollment', "false"],
+                                        'ObserverEnrollment', 'false', @enrollment1.id.to_s],
                                        [@course2.id.to_s, "SIS_COURSE_ID_2", @user1.id.to_s, "user_sis_id_01",
                                         "observer", observer_role.id.to_s,
                                         @enrollment7.course_section_id.to_s, nil, "deleted",
-                                        @user3.id.to_s, "user_sis_id_03", "true", 'ObserverEnrollment', "false"],
+                                        @user3.id.to_s, "user_sis_id_03", "true", 'ObserverEnrollment', 'false',
+                                        @enrollment7.id.to_s],
                                        [@course1.id.to_s, "SIS_COURSE_ID_1", @user2.id.to_s, "user_sis_id_02",
                                         "ta", ta_role.id.to_s,
                                         @enrollment3.course_section_id.to_s, nil, "active", nil, nil, "true",
-                                        'TaEnrollment', "false"],
+                                        'TaEnrollment', 'false', @enrollment3.id.to_s],
                                        [@course3.id.to_s, "SIS_COURSE_ID_3", @user2.id.to_s, "user_sis_id_02",
                                         "student", student_role.id.to_s,
                                         @enrollment2.course_section_id.to_s, nil, "active", nil, nil, "true",
-                                        'StudentEnrollment', "false"],
+                                        'StudentEnrollment', 'false', @enrollment2.id.to_s],
                                        [@course1.id.to_s, "SIS_COURSE_ID_1", @user3.id.to_s, "user_sis_id_03",
                                         "student", student_role.id.to_s,
                                         @enrollment4.course_section_id.to_s, nil, "active", nil, nil, "true",
-                                        'StudentEnrollment', "false"],
+                                        'StudentEnrollment', 'false', @enrollment4.id.to_s],
                                        [@course2.id.to_s, "SIS_COURSE_ID_2", @user3.id.to_s, "user_sis_id_03",
                                         "student", student_role.id.to_s,
                                         @enrollment5.course_section_id.to_s, nil, "deleted", nil, nil, "true",
-                                        'StudentEnrollment', "false"],
+                                        'StudentEnrollment', 'false', @enrollment5.id.to_s],
                                        [@course1.id.to_s, "SIS_COURSE_ID_1", @user4.id.to_s, "user_sis_id_04",
                                         "teacher", teacher_role.id.to_s, @enrollment9.course_section_id.to_s,
                                         "english_section_1", "active", nil, nil, "true",
-                                        'TeacherEnrollment', "false"],
+                                        'TeacherEnrollment', 'false', @enrollment9.id.to_s],
                                        [@course1.id.to_s, "SIS_COURSE_ID_1", @user4.id.to_s, "user_sis_id_04",
                                         "teacher", teacher_role.id.to_s,
                                         @enrollment6.course_section_id.to_s, nil, "deleted", nil, nil, "true",
-                                        'TeacherEnrollment', "false"],
+                                        'TeacherEnrollment', 'false', @enrollment6.id.to_s],
                                        [@course2.id.to_s, "SIS_COURSE_ID_2", @user4.id.to_s, "user_sis_id_04",
                                         "Pixel Engineer", @role.id.to_s, @enrollment11.course_section_id.to_s,
-                                        nil, "deleted", nil, nil, "true", 'DesignerEnrollment', "false"],
+                                        nil, "deleted", nil, nil, "true", 'DesignerEnrollment', 'false',
+                                        @enrollment11.id.to_s],
                                        [@course4.id.to_s, nil, @user4.id.to_s,
                                         "user_sis_id_04", "student",
                                         student_role.id.to_s,
                                         @enrollment12.course_section_id.to_s, nil,
-                                        "invited", nil, nil, "false", 'StudentEnrollment', "false"],
+                                        "invited", nil, nil, "false", 'StudentEnrollment', 'false', @enrollment12.id.to_s],
                                        [@course4.id.to_s, nil, @user5.id.to_s,
                                         "user_sis_id_05", "teacher", teacher_role.id.to_s,
                                         @enrollment8.course_section_id.to_s, nil, "active", nil, nil, "false",
-                                        'TeacherEnrollment', "false"]]
+                                        'TeacherEnrollment', 'false', @enrollment8.id.to_s]]
       end
 
       it "should run the provisioning report on a term and sub account with deleted enrollments" do
@@ -902,23 +907,28 @@ describe "Default Account Reports" do
 
         expect(parsed).to match_array [[@course1.id.to_s, "SIS_COURSE_ID_1", @user6.id.to_s, nil, "teacher",
                                         teacher_role.id.to_s, @enrollment10.course_section_id.to_s,
-                                        nil, "concluded", nil, nil, "false", 'TeacherEnrollment', "false"],
+                                        nil, "concluded", nil, nil, "false", 'TeacherEnrollment', 'false',
+                                        @enrollment10.id.to_s],
                                        [@course1.id.to_s, "SIS_COURSE_ID_1", @user1.id.to_s, "user_sis_id_01",
                                         "observer", observer_role.id.to_s, @enrollment1.course_section_id.to_s,
-                                        nil, "active", nil, nil, "true", 'ObserverEnrollment', "false"],
+                                        nil, "active", nil, nil, "true", 'ObserverEnrollment', 'false',
+                                        @enrollment1.id.to_s],
                                        [@course1.id.to_s, "SIS_COURSE_ID_1", @user2.id.to_s, "user_sis_id_02",
                                         "ta", ta_role.id.to_s, @enrollment3.course_section_id.to_s,
-                                        nil, "active", nil, nil, "true", 'TaEnrollment', "false"],
+                                        nil, "active", nil, nil, "true", 'TaEnrollment', 'false',
+                                        @enrollment3.id.to_s],
                                        [@course1.id.to_s, "SIS_COURSE_ID_1", @user3.id.to_s, "user_sis_id_03",
                                         "student", student_role.id.to_s,
                                         @enrollment4.course_section_id.to_s, nil, "active", nil, nil, "true",
-                                        'StudentEnrollment', "false"],
+                                        'StudentEnrollment', 'false', @enrollment4.id.to_s],
                                        [@course1.id.to_s, "SIS_COURSE_ID_1", @user4.id.to_s, "user_sis_id_04",
                                         "teacher", teacher_role.id.to_s, @enrollment9.course_section_id.to_s,
-                                        "english_section_1", "active", nil, nil, "true", 'TeacherEnrollment', "false"],
+                                        "english_section_1", "active", nil, nil, "true", 'TeacherEnrollment',
+                                        'false', @enrollment9.id.to_s],
                                        [@course1.id.to_s, "SIS_COURSE_ID_1", @user4.id.to_s, "user_sis_id_04",
                                         "teacher", teacher_role.id.to_s, @enrollment6.course_section_id.to_s,
-                                        nil, "deleted", nil, nil, "true", 'TeacherEnrollment', "false"]]
+                                        nil, "deleted", nil, nil, "true", 'TeacherEnrollment', 'false',
+                                        @enrollment6.id.to_s]]
       end
 
       describe "sharding" do
@@ -934,7 +944,7 @@ describe "Default Account Reports" do
           end
           allow(@account).to receive(:trusted_account_ids).and_return([@account.id, @root.id])
           allow(@account).to receive(:trust_exists?).and_return(true)
-          @course1.enroll_user(@user1)
+          @e1 = @course1.enroll_user(@user1)
           @course1.enroll_user(@user2)
 
           parameters = {}
@@ -946,7 +956,7 @@ describe "Default Account Reports" do
                                    'other_shard', "student", student_role.id.to_s,
                                    @course1.enrollments.where(user_id: @user1).take.course_section_id.to_s,
                                    nil, "invited", nil, nil, "false", 'StudentEnrollment',
-                                   "false", HostUrl.context_host(@root)]
+                                   "false", @e1.id.to_s, HostUrl.context_host(@root)]
         end
       end
     end
@@ -1249,6 +1259,76 @@ describe "Default Account Reports" do
         expect(parsed).to match_array [["user_sis_id_02", "user_sis_id_01", "deleted"],
                                        ["user_sis_id_04", "user_sis_id_03", "active"]]
         expect(parsed.length).to eq 2
+      end
+    end
+
+    describe 'admins' do
+      before(:once) do
+        create_an_account
+        @u1 = user_with_managed_pseudonym(account: @account, sis_user_id: 'U001', name: 'user 1')
+        @u2 = user_with_managed_pseudonym(account: @account, sis_user_id: 'U002', name: 'user 2')
+        @admin2 = @sub_account.account_users.create(user: @u1)
+        @admin2.sis_batch_id=@sis.id
+        @admin2.save!
+        @role1 = custom_account_role('role1', account: @account)
+        @admin3 = @account.account_users.create(user: @u2, role: @role1)
+        @admin3.sis_batch_id=@sis.id
+        @admin3.save!
+      end
+
+      it 'should run sis' do
+        parameters = {}
+        parameters['admins'] = true
+        parameters['include_deleted'] = true
+        parsed = read_report('sis_export_csv', {params: parameters, order: 3, header: true})
+        expect(parsed).to match_array [['user_id', 'account_id', 'role_id', 'role', 'status'],
+                                       ['U001', 'sub1', admin_role.id.to_s, 'AccountAdmin', 'active'],
+                                       ['U002', nil, @role1.id.to_s, 'role1', 'active']]
+      end
+
+      it 'should run provisioning' do
+        parameters = {}
+        parameters['admins'] = true
+        parameters['include_deleted'] = true
+        @admin.pseudonyms.create!(account: @account, unique_id: 'deleted').destroy
+        parsed = read_report('provisioning_csv', {params: parameters, order: [1, 5], header: true})
+        expect(parsed).to match_array [['admin_user_name', 'canvas_user_id', 'user_id', 'canvas_account_id',
+                                        'account_id', 'role_id', 'role', 'status', 'created_by_sis'],
+                                       ['user 1', @u1.id.to_s, 'U001', @sub_account.id.to_s, 'sub1',
+                                        admin_role.id.to_s, 'AccountAdmin', 'active', 'true'],
+                                       ['user 2', @u2.id.to_s, 'U002', @account.id.to_s, nil,
+                                        @role1.id.to_s, 'role1', 'active', 'true'],
+                                       ['default admin', @admin.id.to_s, nil, @account.id.to_s, nil,
+                                        admin_role.id.to_s, 'AccountAdmin', 'active', 'false']]
+      end
+
+      describe 'sharding' do
+        specs_require_sharding
+
+        it 'should run with cross shard pseudonyms' do
+          @shard1.activate do
+            @root = Account.create
+            @user = user_with_managed_pseudonym(active_all: true, account: @root, name: 'Jimmy John',
+                                                username: 'other_shard@example.com', sis_user_id: 'other_shard')
+          end
+          allow(@account).to receive(:trusted_account_ids).and_return([@account.id, @root.id])
+          allow(@account).to receive(:trust_exists?).and_return(true)
+          @admin4 = @account.account_users.create(user: @user)
+          @admin4.sis_batch_id=@sis.id
+          @admin4.save!
+
+          parameters = {}
+          parameters['admins'] = true
+          parsed = read_report('sis_export_csv', {params: parameters, order: [3, 0], header: true})
+
+          expect(parsed).to match_array [['user_id', 'account_id', 'role_id', 'role', 'status', 'root_account'],
+                                         ['U001', 'sub1', admin_role.id.to_s, 'AccountAdmin',
+                                          'active', HostUrl.context_host(@account)],
+                                         ['U002', nil, @role1.id.to_s, 'role1',
+                                          'active', HostUrl.context_host(@account)],
+                                         ['other_shard', nil, admin_role.id.to_s, 'AccountAdmin',
+                                          'active', HostUrl.context_host(@root)]]
+        end
       end
     end
 

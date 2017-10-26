@@ -17,7 +17,8 @@
 #
 
 require_relative '../../helpers/gradezilla_common'
-require_relative '../page_objects/gradezilla_page'
+require_relative '../pages/gradezilla_page'
+require_relative '../pages/gradezilla_cells_page'
 require_relative '../../helpers/groups_common'
 
 describe "Gradezilla" do
@@ -26,7 +27,10 @@ describe "Gradezilla" do
   include GroupsCommon
 
   before(:once) { gradebook_data_setup }
-  before(:each) { user_session(@teacher) }
+  before(:each) do
+    Account.default.set_feature_flag!('new_gradebook', 'on')
+    user_session(@teacher)
+  end
 
   it "shows unpublished assignments", priority: "1", test_id: 3253281 do
     assignment = @course.assignments.create! title: 'unpublished'

@@ -57,9 +57,15 @@ module Importers
       assignment_records.compact!
 
       assignment_ids = assignment_records.map(&:id)
+      #PR-74: large db resons
       Submission.suspend_callbacks(:update_assignment, :touch_graders) do
-        Submission.where(assignment_id: assignment_ids).find_each do |sub|
-          sub.save!
+        # execute this query against the slave, so that it will use a cursor, and not
+        # attempt to order by submissions.id, because in very large dbs that can cause
+        # the postgres planner to prefer to search the submission_pkey index
+        Shackles.activate(:slave) do
+          Submission.where(assignment_id: assignment_ids).find_each do |sub|
+            Shackles.activate(:master) { sub.save! }
+          end
         end
       end
 

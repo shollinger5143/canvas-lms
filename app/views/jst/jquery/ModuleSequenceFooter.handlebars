@@ -21,7 +21,7 @@
 
           {{/if}}
         </div>
-        
+
         {{#if showModule}}
           <div class="sm-module-footer">
             <ul class="sm-module-footer__nav">
@@ -60,5 +60,21 @@
       </div>
 
     </div>
+    <!-- #PR-74: they added that if statement and we kept out footer logic. We will need to reconsile those in the UI-->
+    {{#if next.show}}
+      <span class="module-sequence-footer-button--next" data-tooltip="left" data-html-tooltip-title="{{next.tooltip}}">
+        <a
+          href="{{next.url}}"
+          role="button"
+          class="Button"
+          aria-describedby="msf{{instanceNumber}}-next-desc"
+          aria-disabled={{next.modules_tab_disabled}}
+          {{ disabledIf next.modules_tab_disabled }}
+        >
+          {{#t 'next'}}Next{{/t}}<i class="icon-mini-arrow-right"></i>
+          <span id="msf{{instanceNumber}}-next-desc" class="hidden" hidden>{{next.tooltipText}}</span>
+        </a>
+      </span>
+    {{/if}}
   </div>
 </div>

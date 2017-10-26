@@ -699,7 +699,7 @@ describe DiscussionTopic do
       expect(@topic.subtopics_refreshed_at).not_to be_nil
     end
 
-    it "should not allow students to edit sub-topics" do
+    it "should not allow anyone to edit sub-topics" do
       @first_user = @student
       @second_user = user_model
       @course.enroll_student(@second_user).accept
@@ -713,6 +713,8 @@ describe DiscussionTopic do
       @sub_topic.save!
       expect(@group_topic.grants_right?(@second_user, :update)).to eql(false)
       expect(@sub_topic.grants_right?(@second_user, :update)).to eql(false)
+      expect(@group_topic.grants_right?(@teacher, :update)).to eql(true)
+      expect(@sub_topic.grants_right?(@teacher, :update)).to eql(false) # the changes just get undone anyway by refresh_subtopics
     end
   end
 
@@ -1028,6 +1030,15 @@ describe DiscussionTopic do
       ct.reply_from(user: @student, text: 'ohai')
       ct.user_ids_who_have_posted_and_admins
       expect(ct.user_can_see_posts?(@student)).to be_truthy
+    end
+
+    it "should let account admins see group discussions with require_initial_post" do
+      group_discussion_assignment
+      @topic.require_initial_post = true
+      @topic.save!
+      ct = @topic.child_topics.first
+      account_admin_user(:active_all => true)
+      expect(ct.user_can_see_posts?(@admin)).to be_truthy
     end
 
     describe "observers" do

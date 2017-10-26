@@ -312,11 +312,11 @@ class Attachment < ActiveRecord::Base
     progress = Progress.where(context_type: 'Attachment', context_id: self, tag: tag).last
     progress ||= Progress.new context: self, tag: tag
 
-    if progress.new_record?
+    if progress.new_record? || !progress.pending?
       progress.reset!
       progress.process_job(MediaObject, :add_media_files, { :run_at => delay.seconds.from_now, :priority => Delayed::LOWER_PRIORITY, :preserve_method_args => true, :max_attempts => 5 }, self, false) && true
     else
-      progress.completed? && !progress.failed?
+      true
     end
   end
 
@@ -738,7 +738,23 @@ class Attachment < ActiveRecord::Base
   end
 
   def downloadable?
+   if InstFS.enabled?
+      !!self.instfs_uuid
+   else
     !!(self.authenticated_s3_url rescue false)
+   end
+  end
+
+  def authenticated_url(*thumbnail, **options)
+    if InstFS.enabled? && self.instfs_uuid
+      InstFS.authenticated_url(self, options)
+    else
+      # attachment_fu doesn't like the extra option when building s3 urls
+      should_download = options.delete(:download)
+      disposition = should_download ? "attachment" : "inline"
+      options[:response_content_disposition] = "#{disposition}; #{disposition_filename}"
+      self.authenticated_s3_url(*thumbnail, **options)
+    end
   end
 
   def local_storage_path
@@ -887,12 +903,11 @@ class Attachment < ActiveRecord::Base
         next if recipient_keys.empty?
 
         notification = BroadcastPolicy.notification_finder.by_name(count.to_i > 1 ? 'New Files Added' : 'New File Added')
-        asset_context = record.context
         data = { :count => count }
         DelayedNotification.send_later_if_production_enqueue_args(
             :process,
             { :priority => Delayed::LOW_PRIORITY },
-            record, notification, recipient_keys, asset_context, data)
+            record, notification, recipient_keys, data)
       end
     end
   end
@@ -909,11 +924,11 @@ class Attachment < ActiveRecord::Base
   end
 
   def download_url(ttl = url_ttl)
-    authenticated_s3_url(expires_in: ttl, response_content_disposition: "attachment; " + disposition_filename)
+    authenticated_url(expires_in: ttl, download: true)
   end
 
   def inline_url(ttl = url_ttl)
-    authenticated_s3_url(expires_in: ttl, response_content_disposition: "inline; " + disposition_filename)
+    authenticated_url(expires_in: ttl, download: false)
   end
 
   def url_ttl
@@ -1491,13 +1506,11 @@ class Attachment < ActiveRecord::Base
     false
   end
 
-  def matches_filename?(match)
-    filename == match || display_name == match ||
-      URI.unescape(filename) == match || URI.unescape(display_name) == match ||
-      filename.downcase == match.downcase || display_name.downcase == match.downcase ||
-      URI.unescape(filename).downcase == match.downcase || URI.unescape(display_name).downcase == match.downcase
+  def self.matches_name?(name, match)
+    return false unless name
+    name == match || URI.unescape(name) == match || name.downcase == match.downcase || URI.unescape(name).downcase == match.downcase
   rescue
-    false
+     false
   end
 
   def self.attachment_list_from_migration(context, ids)
@@ -1686,7 +1699,7 @@ class Attachment < ActiveRecord::Base
   # Pass an existing attachment in opts[:attachment] to use that, rather than
   # creating a new attachment.
   def self.clone_url_as_attachment(url, opts = {})
-    _, uri = CanvasHttp.validate_url(url)
+    _, uri = CanvasHttp.validate_url(url, check_host: true)
 
     CanvasHttp.get(url) do |http_response|
       if http_response.code.to_i == 200

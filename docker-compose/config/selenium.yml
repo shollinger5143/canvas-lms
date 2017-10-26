@@ -1,4 +1,5 @@
 test:
-  remote_url_firefox: http://seleniumff.docker/wd/hub
-  remote_url_chrome: http://seleniumch.docker/wd/hub
-  browser: chrome
+  host: "localhost"
+  browser: "chrome"
+  platform: "OS X 10.12.6"
+  

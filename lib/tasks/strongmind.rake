@@ -4,7 +4,7 @@ namespace :strongmind do
     puts "TESLA, MASTER OF LIGHTING WILL INVOKE ASSET COMPILATION/GENERATE FOR PROJECT AND RUN IT."
     ::Rake::Task['canvas:compile_assets'].invoke
     puts "[Finished] canvas:compile_assets\n\n"
-    sleep(10)
+    sleep(30)
     puts "[Starting] brand_configs:generate_and_upload_all"
     ::Rake::Task['brand_configs:generate_and_upload_all'].invoke    
     sleep(10)
