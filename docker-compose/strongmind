@@ -1,0 +1,24 @@
+#Install: https://github.com/codekitchen/dinghy. More details on their repo.
+#Also this: https://www.docker.com/products/docker-toolbox. Include VirtualBox 5.2+
+# Set dinghy to use larger images as Cnavas will not work on less thank 8GB.
+  dinghy create --memory=4096 --disk=50000 --cpus=4 --provider=virtualbox
+
+#Mostly this order as well
+cp docker-compose/config/* config/
+docker-compose run --rm web bash -c "bundle install"
+docker-compose run --rm web bash -c "bundle exec rake db:create db:initial_setup"
+docker-compose run --rm web bundle exec rake db:create RAILS_ENV=test
+docker-compose run --rm web bundle exec rake db:migrate RAILS_ENV=test
+docker-compose up selenium-chrome
+
+sudo apt-get update
+sudo apt-get install xvfb
+
+# You may want to try to run: docker-compose run --rm web bundle exec rspec spec/selenium/dashboard_spec.rb
+# Before you reach for the stars. That one will give you a quick sanity check without letting you hang in case your tests are yet working.
+docker-compose run --rm web bundle exec rspec spec
+docker-compose run --rm js-tests
+docker-compose up
+
+#TODO
+  *merge to sm-master

@@ -60,4 +60,5 @@ yarn-error.log
 /gems/*/node_modules
 
 # user docker compose overrides
-docker-compose.local.*
+*.DS_Store
+.DS_Store
