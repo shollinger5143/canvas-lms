@@ -17,6 +17,6 @@ services:
     ports:
       - 5901:5900
     environment:
-      VIRTUAL_HOST: seleniumch.docker
-      remote_url: http://seleniumch.docker/wd/hub
+      VIRTUAL_HOST: <%= ENV['DATA_CHROME_HOST'] %>
+      remote_url: http://<%= ENV['DATA_CHROME_HOST'] %>:4444/wd/hub
       browser: chrome

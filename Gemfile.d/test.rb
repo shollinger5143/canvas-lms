@@ -42,10 +42,10 @@ group :test do
   gem 'once-ler', '0.1.2'
 
   # Keep this gem synced with docker-compose/seleniumff/Dockerfile
-  gem 'selenium-webdriver', '2.53.4'
+  gem 'selenium-webdriver', '3.6.0'
     gem 'childprocess', '0.7.1', require: false
     gem 'websocket', '1.2.4', require: false
-  gem 'chromedriver-helper', require: false
+  gem 'chromedriver-helper', '1.1.0', require: false
   gem 'selinimum', '0.0.1', require: false, path: 'gems/selinimum'
   gem 'test-queue', github: 'instructure/test-queue', ref: '1b92ebbca70705599c78a1bad5b16d6a37f741f2', require: false
   gem 'testrailtagging', '0.3.8.3', require: false
