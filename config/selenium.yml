@@ -2,6 +2,9 @@ test:
   host: "localhost"
   browser: "chrome"
   platform: "OS X 10.12.6"
+  remote_url: http://<%= ENV['DATA_CHROME_HOST'] %>:4444/wd/hub
+  remote_url_chrome: http://<%= ENV['DATA_CHROME_HOST'] %>:4444/wd/hub
+  tunnel_id: "canvas_chrome"
   
   #version: "45.0"
   #platform: "Windows 10"
