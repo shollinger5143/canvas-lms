@@ -195,6 +195,32 @@ import 'compiled/jquery.rails_flash_notifications'
         });
       },
 
+      evaluateLesson: function (completions, current_lesson_state, current_activity_container, last_lesson_state, callback) {
+        if (_.every(completions)) {
+          // if the container is complete, close it by default.
+          current_lesson_state = "complete";
+          if (current_activity_container) {
+            current_activity_container.hide();
+          }
+        } else if (_.some(completions)) {
+          // in this case, always open the lesson
+          current_lesson_state = "started";
+          if (current_activity_container) {
+            current_activity_container.show();
+          }
+          current_activity_container.prev().find('.context_module_sub_header_expander').children('.sm-unit-dropdown-icon').removeClass('icon-arrow-open-right').addClass('icon-arrow-open-down');
+        } else {
+          current_lesson_state = "unstarted";
+          if (last_lesson_state === "complete") {
+            // in this case, open the lesson, *if* the last lesson is complete
+            if (current_activity_container) {
+              current_activity_container.show();
+            }
+            current_activity_container.prev().find('.context_module_sub_header_expander').children('.sm-unit-dropdown-icon').removeClass('icon-arrow-open-right').addClass('icon-arrow-open-down');
+          }
+        }
+      },
+
       getCourseItems: function(callback){
         $.ajaxJSON($(".course_items_json_url").attr('href'), 'GET', {}, function(data) {
           window.localStorage.setItem("course_items", JSON.stringify(data));
@@ -203,40 +229,74 @@ import 'compiled/jquery.rails_flash_notifications'
         })
       },
 
+      calculateUnitProgress: function (item){
+        if(item.items_count){
+          let total_items = 0;
+          var total_completed = [];
+
+          item.items.map(function(module){
+            if (module.completion_requirement) {
+              total_items++;
+            }
+            let cr = module.completion_requirement || {};
+            if(cr.completed){
+              total_completed.push(module);
+            }
+          });
+          if (total_items) {
+            return Math.floor((total_completed.length / total_items) * 100);
+          }
+        }
+        return 0;
+      },
+
       updateCourseProgress: function(callback){
 
-        function calculateUnitProgress(item){
-          if(item.items_count){
-            let total_items = 0;
-            var total_completed = [];
-
-            item.items.map(function(module){
-              if (module.completion_requirement) {
-                total_items++;
-              }
-              let cr = module.completion_requirement || {};
-              if(cr.completed){
-                total_completed.push(module);
-              }
-            });
-            if (total_items) {
-              return Math.floor((total_completed.length / total_items) * 100);
-            }
-          }
-          return 0;
-        }
+        let $contextModules = $("#context_modules .context_module");
 
         var courseItems = JSON.parse(window.localStorage.getItem("course_items"));
 
-        courseItems.map(function(item){
-          let progressBar = $("#"+item.id+" .sm-unit-header_progress-container .sm-unit-header_progress-bar");
-          let progressText = $("#"+item.id+" .sm-unit-header_progress-container .sm-progress-percentage");
-          let progress = calculateUnitProgress(item);
+        courseItems.map((unit) => {
+          let progressBar = $("#"+unit.id+" .sm-unit-header_progress-container .sm-unit-header_progress-bar");
+          let progressText = $("#"+unit.id+" .sm-unit-header_progress-container .sm-progress-percentage");
+          let progress = modules.calculateUnitProgress(unit);
           progressText.html(progress + "%")
           progressBar.css("width", progress + "%");
-          $("#"+item.id+" .sm-unit-header_progress-container").fadeIn(200)
+          $("#"+unit.id+" .sm-unit-header_progress-container").fadeIn(200)
 
-        })
+          var current_activity_container, last_was_subheader, current_lesson_state;
+          var completions = [];
+          var last_lesson_state = "started"; // because we want the first lesson to open by default if none of its activities are complete
+
+          unit.items.map((item) => {
+              if (last_was_subheader && item.type != "SubHeader") {
+                current_activity_container = $('#context_module_item_' + item.id).parent();
+              }
+
+              if (item.type === "SubHeader") {
+                // This is a subheader - if we have a current activity,
+                // evaluate if it is complete, partially complete or undone
+                modules.evaluateLesson(completions, current_lesson_state, current_activity_container, last_lesson_state);
+
+                if (current_lesson_state) {
+                  last_lesson_state = current_lesson_state;
+                }
+                completions = [];
+                current_activity_container = false;
+                last_was_subheader = true;
+                current_lesson_state = "unstarted";
+              } else {
+                last_was_subheader = false;
+              }
+
+              if (current_activity_container && item.type != "SubHeader") {
+                if (item.completion_requirement) {
+                  completions.push(item.completion_requirement.completed);
+                }
+              }
+            });
+            modules.evaluateLesson(completions, current_lesson_state, current_activity_container, last_lesson_state)
+          });
       },
 
       updateAssignmentData: function(callback) {
@@ -363,7 +423,7 @@ import 'compiled/jquery.rails_flash_notifications'
         var data = $module.getTemplateData({textValues: ['name', 'unlock_at', 'require_sequential_progress', 'publish_final_grade']});
         $('#move_context_module_select').empty();
         $('#move_context_module_select').append($.raw(selectOptions.join('')));
-        //$form.fillFormData(data, {object_name: 'context_module'});
+
         $form.dialog({
           autoOpen: false,
           modal: true,
@@ -375,7 +435,6 @@ import 'compiled/jquery.rails_flash_notifications'
           }
         }).dialog('open');
         $module.removeClass('dont_remove');
-        // $form.find('.ui-dialog-titlebar-close').focus();
 
       },
       hideMoveModuleItem: function (remove) {
@@ -421,6 +480,16 @@ import 'compiled/jquery.rails_flash_notifications'
         modules.hideMoveModule();
         modules.updateModulePositions();
 
+      },
+
+      goToActivity: function () {
+        $('.sm-activity-row').click(function(e){
+          let $t = $(e.target);
+          let $this = $(this);
+          if(!($t.closest('.ig-admin').length >= 1) && !($this.closest('.context_module_sub_header').length >= 1)){
+            window.location = $this.attr('href');
+          }
+        });
       },
 
       editModule: function($module) {
@@ -495,9 +564,7 @@ import 'compiled/jquery.rails_flash_notifications'
           $('#context_module_requirement_count_').prop('checked', true).change();
         }
 
-
-        $module.fadeIn('fast', function() {
-        });
+        $module.fadeIn(200);
         $module.addClass('dont_remove');
         $form.find(".module_name").toggleClass('lonely_entry', isNew);
         var $toFocus = $('.ig-header-admin .al-trigger', $module);
@@ -540,7 +607,7 @@ import 'compiled/jquery.rails_flash_notifications'
           if ($admin.length) { $admin.detach(); }
           $item = $olditem.clone(true);
           if ($admin.length) {
-            $item.find('.ig-row').append($admin)
+            $item.find('.sm-ig-row').append($admin)
           }
         } else {
           $item = $('#context_module_item_blank').clone(true).removeAttr('id');
@@ -560,7 +627,6 @@ import 'compiled/jquery.rails_flash_notifications'
         }
         $item.addClass('indent_' + (data.indent || 0));
         $item.addClass(modules.itemClass(data));
-
         // don't just tack onto the bottom, put it in its correct position
         var $before = null;
         $module.find('.context_module_items').children().each(function() {
@@ -642,8 +708,8 @@ import 'compiled/jquery.rails_flash_notifications'
         $("#module_list").find(".context_module_option").remove();
         $("#context_modules .context_module").each(function() {
           var $this = $(this);
-          var data = $this.find(".header").getTemplateData({textValues: ['name']});
-          data.id = $this.find(".header").attr('id');
+          var data = $this.find(".sm-header").getTemplateData({textValues: ['name']});
+          data.id = $this.find(".sm-header").attr('id');
           $this.find('.name').attr('title', data.name);
           var $option = $(document.createElement('option'));
           $option.val(data.id);
@@ -954,17 +1020,16 @@ import 'compiled/jquery.rails_flash_notifications'
       data.context_module.unlock_at = $.datetimeString(data.context_module.unlock_at);
       var $module = $("#context_module_" + data.context_module.id);
       $module.attr('aria-label', data.context_module.name);
-      $module.find(".header").fillTemplateData({
+      $module.find(".sm-header").fillTemplateData({
         data: data.context_module,
         hrefValues: ['id']
       });
 
-      $module.find('.header').attr('id', data.context_module.id);
+      $module.find('.sm-header').attr('id', data.context_module.id);
       $module.find(".footer").fillTemplateData({
         data: data.context_module,
         hrefValues: ['id']
       });
-
       $module.find(".unlock_details").showIf(data.context_module.unlock_at && Date.parse(data.context_module.unlock_at) > new Date());
       updatePrerequisites($module, data.context_module.prerequisites);
 
@@ -986,12 +1051,12 @@ import 'compiled/jquery.rails_flash_notifications'
         .find('.criterion').removeClass('defined');
 
       // Hack. Removing the class here only to re-add it a few lines later if needed.
-      $module.find('.ig-row').removeClass('with-completion-requirements');
+      $module.find('.sm-ig-row').removeClass('with-completion-requirements');
       for(var idx in data.context_module.completion_requirements) {
         var req = data.context_module.completion_requirements[idx];
         req.criterion_type = req.type;
         var $item = $module.find("#context_module_item_" + req.id);
-        $item.find('.ig-row').addClass('with-completion-requirements');
+        $item.find('.sm-ig-row').addClass('with-completion-requirements');
         $item.find(".criterion").fillTemplateData({data: req});
         $item.find(".completion_requirement").fillTemplateData({data: req});
         $item.find(".criterion").addClass('defined');
@@ -1044,28 +1109,29 @@ import 'compiled/jquery.rails_flash_notifications'
         $module.loadingImage('remove');
         $module.attr('id', 'context_module_' + data.context_module.id);
         setupContentIds($module, data.context_module.id);
-
         // Set this module up with correct data attributes
         $module.data('moduleId', data.context_module.id);
         $module.data('module-url', "/courses/" + data.context_module.context_id + "/modules/" + data.context_module.id + "items?include[]=content_details");
         $module.data('workflow-state', data.context_module.workflow_state);
+
         if(data.context_module.workflow_state == "unpublished"){
           $module.find('.workflow-state-action').text("Publish");
-          $module.find('.workflow-state-icon').addClass('publish-module-link')
-                                              .removeClass('unpublish-module-link');
+          $module.find('.workflow-state-icon').addClass('publish-module-link').removeClass('unpublish-module-link');
           $module.addClass('unpublished_module');
         }
 
         $("#no_context_modules_message").slideUp();
         var $publishIcon = $module.find('.publish-icon');
         // new module, setup publish icon and other stuff
+
         if (!$publishIcon.data('id')) {
           var fixLink = function(locator, attribute) {
               var el = $module.find(locator);
               el.attr(attribute, el.attr(attribute).replace('{{ id }}', data.context_module.id));
           }
-          fixLink('span.collapse_module_link', 'href');
-          fixLink('span.expand_module_link', 'href');
+
+          fixLink('div.collapse_module_link', 'href');
+          fixLink('div.expand_module_link', 'href');
           fixLink('.reorder_items_url', 'href');
           fixLink('.add_module_item_link', 'rel');
           fixLink('.add_module_item_link', 'rel');
@@ -1274,12 +1340,10 @@ import 'compiled/jquery.rails_flash_notifications'
             var $activeElemClass = "." + $(activeElem).attr('class').split(' ').join(".");
             $(elemID).find($activeElemClass).focus();
           }, 0);
-
         } else {
           $cogLink.focus();
         }
       })
-
     });
     $(".edit_item_link").live('click', function(event) {
       event.preventDefault();
@@ -1437,6 +1501,7 @@ import 'compiled/jquery.rails_flash_notifications'
       modules.addModule();
     });
 
+
     $(".add_module_item_link").on('click', function(event) {
       event.preventDefault();
       var $trigger = $(event.currentTarget);
@@ -1448,8 +1513,9 @@ import 'compiled/jquery.rails_flash_notifications'
         });
         return;
       }
+
       if(INST && INST.selectContentDialog) {
-        var id = $(this).parents(".context_module").find(".header").attr("id");
+        var id = $(this).parents(".context_module").find(".sm-header").attr("id");
         var name = $(this).parents(".context_module").find(".name").attr("title");
         var options = {for_modules: true};
         options.select_button_text = I18n.t('buttons.add_item', "Add Item");
@@ -1642,7 +1708,7 @@ import 'compiled/jquery.rails_flash_notifications'
 
         var props = {
           model: file,
-          togglePublishClassOn: $el.parents('.ig-row')[0],
+          togglePublishClassOn: $el.parents('.sm-ig-row')[0],
           userCanManageFilesForContext: ENV.MODULE_FILE_PERMISSIONS.manage_files,
           usageRightsRequiredForContext: ENV.MODULE_FILE_PERMISSIONS.usage_rights_required,
           fileName: file.displayName()
@@ -1674,12 +1740,12 @@ import 'compiled/jquery.rails_flash_notifications'
 
 
       var view = new PublishIconView(viewOptions);
-      var row = $el.closest('.ig-row');
+      var row = $el.closest('.sm-ig-row');
 
       if (data.published) { row.addClass('ig-published'); }
       // TODO: need to go find this item in other modules and update their state
       model.on('change:published', function() {
-        view.$el.closest('.ig-row').toggleClass('ig-published', model.get('published'));
+        view.$el.closest('.sm-ig-row').toggleClass('ig-published', model.get('published'));
         view.render();
       });
       view.render();
@@ -1801,11 +1867,12 @@ import 'compiled/jquery.rails_flash_notifications'
     }
   }
   function update_icon_status(button){
-      if (button.hasClass('icon-arrow-open-right')) {
-        button.removeClass('icon-arrow-open-right').addClass('icon-arrow-open-down');
-      } else if (button.hasClass('icon-arrow-open-down')) {
-        button.removeClass('icon-arrow-open-down').addClass('icon-arrow-open-right');
-      }
+    let $icon = button.find('i.sm-unit-dropdown-icon')
+    if ($icon.hasClass('icon-arrow-open-right')) {
+      $icon.removeClass('icon-arrow-open-right').addClass('icon-arrow-open-down');
+    } else if ($icon.hasClass('icon-arrow-open-down')) {
+      $icon.removeClass('icon-arrow-open-down').addClass('icon-arrow-open-right');
+    }   
   };
   function init_icon_status(button){
     button.removeClass('icon-arrow-open-right').addClass('icon-arrow-open-down');
@@ -1814,7 +1881,7 @@ import 'compiled/jquery.rails_flash_notifications'
 
     if (ENV.IS_STUDENT) {
       $('.context_module').addClass('student-view');
-      $('.context_module_item .ig-row').addClass('student-view');
+      $('.context_module_item .sm-ig-row').addClass('student-view');
 
       var $context_module_subheaders = $('.context_module_sub_header');
 
@@ -1830,76 +1897,11 @@ import 'compiled/jquery.rails_flash_notifications'
           update_icon_status(button);
         });
       });
-
-      var course_items = JSON.parse(window.localStorage.getItem("course_items")) || [];
-
-      course_items.forEach(function (unit) {
-        var current_activity_container, last_was_subheader, current_lesson_state;
-        var completions = [];
-        var last_lesson_state = "started"; // because we want the first lesson to open by default if none of its activities are complete
-
-        function evaluate_lesson() {
-          if (_.every(completions)) {
-            // if the container is complete, close it by default.
-            current_lesson_state = "complete";
-            if (current_activity_container) {
-              current_activity_container.hide();
-            }
-          } else if (_.some(completions)) {
-            // in this case, always open the lesson
-            current_lesson_state = "started";
-            if (current_activity_container) {
-              current_activity_container.show();
-            }
-            current_activity_container.prev().find('.context_module_sub_header_expander').removeClass('icon-arrow-open-right').addClass('icon-arrow-open-down');
-          } else {
-            current_lesson_state = "unstarted";
-            if (last_lesson_state === "complete") {
-              // in this case, open the lesson, *if* the last lesson is complete
-              if (current_activity_container) {
-                current_activity_container.show();
-              }
-              current_activity_container.prev().find('.context_module_sub_header_expander').removeClass('icon-arrow-open-right').addClass('icon-arrow-open-down');
-            }
-          }
-        }
-
-        unit.items.forEach(function (item) {
-          // console.log("Item:", item.id, item);
-
-          if (last_was_subheader && item.type != "SubHeader") {
-            current_activity_container = $('#context_module_item_' + item.id).parent();
-          }
-
-          if (item.type === "SubHeader") {
-            // This is a subheader - if we have a current activity,
-            // evaluate if it is complete, partially complete or undone
-            evaluate_lesson();
-            //console.log($('#context_module_item_' + item.id))
-            if (current_lesson_state) {
-              last_lesson_state = current_lesson_state;
-            }
-            completions = [];
-            current_activity_container = false;
-            last_was_subheader = true;
-            current_lesson_state = "unstarted";
-          } else {
-            last_was_subheader = false;
-          }
-
-          if (current_activity_container && item.type != "SubHeader") {
-            if (item.completion_requirement) {
-              // console.log(item.id, item.title);
-              completions.push(item.completion_requirement.completed);
-            }
-          }
-
-        });
-        evaluate_lesson()
-      });
     }
 
     $("#context_modules").fadeIn(500)
+
+    modules.goToActivity()
 
     $('.external_url_link').click(function(event) {
       Helper.externalUrlLinkClick(event, $(this))
@@ -2079,11 +2081,13 @@ import 'compiled/jquery.rails_flash_notifications'
       var reload_entries = $module.find(".content .context_module_items").children().length === 0;
       var toggle = function(show) {
         var callback = function() {
-          $module.find(".collapse_module_link").css('display', $module.find(".content:visible").length > 0 ? 'inline-block' : 'none');
-          $module.find(".expand_module_link").css('display', $module.find(".content:visible").length === 0 ? 'inline-block' : 'none');
+          $module.find(".collapse_module_link").css('display', $module.find(".content:visible").length > 0 ? 'flex' : 'none');
+          $module.find(".expand_module_link").css('display', $module.find(".content:visible").length === 0 ? 'flex' : 'none');
           if($module.find(".content:visible").length > 0) {
             $module.find(".footer .manage_module").css('display', '');
             $module.toggleClass('collapsed_module', false);
+            update_icon_status($module.find('.sm-header-row.sm-header-middle'));
+
             // Makes sure the resulting item has focus.
             $module.find(".collapse_module_link").focus();
             $.screenReaderFlashMessage(I18n.t('Expanded'));
@@ -2091,6 +2095,7 @@ import 'compiled/jquery.rails_flash_notifications'
           } else {
             $module.find(".footer .manage_module").css('display', ''); //'none');
             $module.toggleClass('collapsed_module', true);
+            update_icon_status($module.find('.sm-header-row.sm-header-middle'));
             // Makes sure the resulting item has focus.
             $module.find(".expand_module_link").focus();
             $.screenReaderFlashMessage(I18n.t('Collapsed'));
@@ -2173,7 +2178,9 @@ import 'compiled/jquery.rails_flash_notifications'
       currentModules.push(new_module[0]);
     }
     for(var idx in currentModules) {
-      $("#context_module_" + currentModules[idx]).addClass('sm-started').removeClass('collapsed_module');
+      let $cm = $("#context_module_" + currentModules[idx])
+      $cm.addClass('sm-started').removeClass('collapsed_module');
+      update_icon_status($cm.find('.ig-header'));
     }
 
     if(ENV.IS_STUDENT){
