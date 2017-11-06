@@ -1,0 +1,1 @@
+COMPOSE_FILE=docker-compose.yml:docker-compose.override.yml:docker-compose.local.ycosta3987.yml:docker-compose/js-tests.override.yml:docker-compose/selenium.override.yml:docker-compose/mailcatcher.override.yml
