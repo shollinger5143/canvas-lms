@@ -5,7 +5,7 @@ git clone https://github.com/strongmind/canvas-lms.git
 cd canvas-lms
 git checkout test-master
 cp docker-compose/config/* ./config/
-echo "COMPOSE_FILE=docker-compose.yml:docker-compose.override.yml:docker-compose/selenium.override.yml" > .env
+echo "COMPOSE_FILE=docker-compose.yml:docker-compose.override.yml:docker-compose/selenium.override.yml:docker-compose.local.yml" > .env
 chown -R 9999:9999 ../canvas-lms
 docker-compose down
 docker rm -f $(docker ps -a -q)
