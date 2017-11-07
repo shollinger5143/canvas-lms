@@ -1,7 +1,20 @@
----
+# to use this add docker-compose/selenium.override.yml
+# to your COMPOSE_FILE var in .env
+
+version: '2'
 services:
+  selenium-firefox:
+    build: ./docker-compose/selenium-firefox
+    ports:
+      - 5900:5900
+    environment:
+      remote_url: http://selenium-firefox:4444/wd/hub
+      browser: firefox
+
   selenium-chrome:
     build: ./docker-compose/selenium-chrome
+    ports:
+      - 5901:5900
     environment:
       browser: chrome
       remote_url: "http://<%= ENV['DATA_CHROME_HOST'] %>:4444/wd/hub"
@@ -12,4 +25,4 @@ services:
           - selenium-chrome
     ports:
       - "5901:5900"
-version: "2"
+
