@@ -1,4 +1,4 @@
-# What goes in this file:
+10b8d1a53de6c4f467bce574514090f0f96022d9# What goes in this file:
 # * local canvas configuration (db, ymls, overrides, etc.)
 # * generated/cached stuff (docs, css, js, uploads, etc.)
 #
@@ -62,4 +62,6 @@ docker-compose.local.*
 deploy.env
 event.json
 .lambda
-.DS_store
+*.DS_Store
+.DS_Store
+

@@ -48,10 +48,9 @@ describe GraphQLHelpers do
   end
 
   context "relay_or_legacy_ids_prepare_func" do
-    let :user1234 { "VXNlci0xMjM0" }
-    let :user5678 { "VXNlci01Njc4" }
-    let :ctx { nil }
-
+    let(:user1234) { "VXNlci0xMjM0" }
+    let(:user5678) { "VXNlci01Njc4" }
+    let(:ctx) { nil }
     it "works for valid ids" do
       expect(
         GraphQLHelpers.relay_or_legacy_ids_prepare_func("User").call(

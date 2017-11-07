@@ -34,6 +34,7 @@ services:
     environment:
       <<: *BASE-ENV
       VIRTUAL_HOST: .canvas.docker
+      DISABLE_SPRING: 1
 
   postgres:
     volumes:
