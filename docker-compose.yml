@@ -11,6 +11,7 @@ services:
       - selenium-firefox
     volumes:
       - "/root/test_results:/usr/src/app/test_results"
+      - "/root/coverage:/usr/src/app/coverage"
   jobs:
     <<: *WEB
     command: bundle exec script/delayed_job run
