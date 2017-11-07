@@ -328,23 +328,19 @@ export default class DashboardCard extends Component {
               className="ic-DashboardCard__header_content"
               style={{height: (this.props.term ? '75px' : '65px')}}
             >
-              <h2 className="ic-DashboardCard__header-title ellipsis" title={this.props.courseCode}>{this.props.courseCode}>
+              <p className="ic-DashboardCard__header-subtitle ellipsis" title={this.props.courseCode}>{this.props.courseCode}</p>
+              <h2 className="ic-DashboardCard__header-title ellipsis" title={this.props.originalName}>
                 <span style={{color: this.props.backgroundColor}}>
                   {this.state.nicknameInfo.nickname}
                 </span>
               </h2>
-              <div
-                className="ic-DashboardCard__header-subtitle ellipsis"
-                title={this.props.courseCode}
-              >
-                {this.props.courseCode}
-              </div>
-              <div
-                className="ic-DashboardCard__header-term ellipsis"
-                title={this.props.term}
-              >
-                {(this.props.term) ? this.props.term : null}
-              </div>
+              {
+                this.props.term ? (
+                  <p className="ic-DashboardCard__header-term ellipsis" title={this.props.term}>
+                    {this.props.term}
+                  </p>
+                ) : null
+              }
             </div>
           </a>
           {this.props.reorderingEnabled && (
