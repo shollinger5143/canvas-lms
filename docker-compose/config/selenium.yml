@@ -1,5 +1,4 @@
 test:
-  host: "localhost"
-  browser: "chrome"
-  platform: "OS X 10.12.6"
-  
+  remote_url_firefox: http://selenium-firefox:4444/wd/hub
+  remote_url_chrome: http://selenium-chrome:4444/wd/hub
+  browser: chrome
