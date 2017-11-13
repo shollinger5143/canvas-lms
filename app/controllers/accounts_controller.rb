@@ -196,6 +196,96 @@ class AccountsController < ApplicationController
     end
   end
 
+  def create
+    if authorized_action(@account, @current_user, [:create_account, :manage_account])
+      account_params = params[:account].present? ? strong_account_params.to_unsafe_h : {}
+      includes = Array(params[:includes]) || []
+      unauthorized = false
+
+      if params[:account].key?(:sis_account_id)
+        sis_id = params[:account].delete(:sis_account_id)
+        if @account.root_account.grants_right?(@current_user, session, :manage_sis) && !@account.root_account?
+          @account.sis_source_id = sis_id.presence
+        else
+          if @account.root_account?
+            @account.errors.add(:unauthorized, t('Cannot set sis_account_id on a root_account.'))
+          else
+            @account.errors.add(:unauthorized, t('To change sis_account_id the user must have manage_sis permission.'))
+          end
+          unauthorized = true
+        end
+      end
+
+      if params[:account][:services]
+        if authorized_action(@account, @current_user, :manage_account_settings)
+          params[:account][:services].slice(*Account.services_exposed_to_ui_hash(nil, @current_user, @account).keys).each do |key, value|
+            @account.set_service_availability(key, value_to_boolean(value))
+          end
+          includes << 'services'
+          params[:account].delete :services
+        end
+      end
+
+      # account settings (:manage_account_settings)
+      account_settings = account_params.slice(:name, :default_time_zone, :settings)
+      unless account_settings.empty?
+        if @account.grants_right?(@current_user, session, :manage_account_settings)
+          if account_settings[:settings]
+            account_settings[:settings].slice!(:restrict_student_past_view,
+                                               :restrict_student_future_view,
+                                               :restrict_student_future_listing,
+                                               :lock_all_announcements,
+                                               :sis_assignment_name_length_input)
+            ensure_sis_max_name_length_value!(account_settings)
+          end
+          @account.errors.add(:name, t(:account_name_required, 'The account name cannot be blank')) if account_params.has_key?(:name) && account_params[:name].blank?
+          @account.errors.add(:default_time_zone, t(:unrecognized_time_zone, "'%{timezone}' is not a recognized time zone", :timezone => account_params[:default_time_zone])) if account_params.has_key?(:default_time_zone) && ActiveSupport::TimeZone.new(account_params[:default_time_zone]).nil?
+        else
+          account_settings.each {|k, v| @account.errors.add(k.to_sym, t(:cannot_manage_account, 'You are not allowed to manage account settings'))}
+          unauthorized = true
+        end
+      end
+
+      # quotas (:manage_account_quotas)
+      quota_settings = account_params.slice(:default_storage_quota_mb, :default_user_storage_quota_mb,
+                                                      :default_group_storage_quota_mb)
+      unless quota_settings.empty?
+        if @account.grants_right?(@current_user, session, :manage_storage_quotas)
+          [:default_storage_quota_mb, :default_user_storage_quota_mb, :default_group_storage_quota_mb].each do |quota_type|
+            next unless quota_settings.has_key?(quota_type)
+
+            quota_value = quota_settings[quota_type].to_s.strip
+            if INTEGER_REGEX !~ quota_value.to_s
+              @account.errors.add(quota_type, t(:quota_integer_required, 'An integer value is required'))
+            else
+              @account.errors.add(quota_type, t(:quota_must_be_positive, 'Value must be positive')) if quota_value.to_i < 0
+              @account.errors.add(quota_type, t(:quota_too_large, 'Value too large')) if quota_value.to_i >= 2**62 / 1.megabytes
+            end
+          end
+        else
+          quota_settings.each {|k, v| @account.errors.add(k.to_sym, t(:cannot_manage_quotas, 'You are not allowed to manage quota settings'))}
+          unauthorized = true
+        end
+      end
+
+      if unauthorized
+        # Attempt to modify something without sufficient permissions
+        render :json => @account.errors, :status => :unauthorized
+      else
+        success = @account.errors.empty?
+        success &&= @account.update_attributes(account_settings.merge(quota_settings)) rescue false
+
+        if success
+          # Successfully completed
+          render :json => account_json(@account, @current_user, session, includes)
+        else
+          # Failed (hopefully with errors)
+          render :json => @account.errors, :status => :bad_request
+        end
+      end
+    end
+  end
+
   def course_user_search
     return unless authorized_action(@account, @current_user, :read)
     can_read_course_list = !@account.site_admin? && @account.grants_right?(@current_user, session, :read_course_list)

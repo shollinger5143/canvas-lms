@@ -1,4 +1,5 @@
 run.config:
+  image: nanobox/build:feature_release-2017-11
   engine: ruby
   engine.config:
     runtime: ruby-2.4
