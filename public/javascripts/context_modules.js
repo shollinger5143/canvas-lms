@@ -208,7 +208,7 @@ import 'compiled/jquery.rails_flash_notifications'
           if (current_activity_container) {
             current_activity_container.show();
           }
-          current_activity_container.prev().find('.context_module_sub_header_expander').removeClass('icon-arrow-open-right').addClass('icon-arrow-open-down');
+          current_activity_container.prev().find('.context_module_sub_header_expander').children('.sm-unit-dropdown-icon').removeClass('icon-arrow-open-right').addClass('icon-arrow-open-down');
         } else {
           current_lesson_state = "unstarted";
           if (last_lesson_state === "complete") {
@@ -216,7 +216,7 @@ import 'compiled/jquery.rails_flash_notifications'
             if (current_activity_container) {
               current_activity_container.show();
             }
-            current_activity_container.prev().find('.context_module_sub_header_expander').removeClass('icon-arrow-open-right').addClass('icon-arrow-open-down');
+            current_activity_container.prev().find('.context_module_sub_header_expander').children('.sm-unit-dropdown-icon').removeClass('icon-arrow-open-right').addClass('icon-arrow-open-down');
           }
         }
       },
@@ -564,7 +564,7 @@ import 'compiled/jquery.rails_flash_notifications'
           $('#context_module_requirement_count_').prop('checked', true).change();
         }
 
-
+        $module.fadeIn(200);
         $module.addClass('dont_remove');
         $form.find(".module_name").toggleClass('lonely_entry', isNew);
         var $toFocus = $('.ig-header-admin .al-trigger', $module);
@@ -627,7 +627,6 @@ import 'compiled/jquery.rails_flash_notifications'
         }
         $item.addClass('indent_' + (data.indent || 0));
         $item.addClass(modules.itemClass(data));
-
         // don't just tack onto the bottom, put it in its correct position
         var $before = null;
         $module.find('.context_module_items').children().each(function() {
@@ -709,8 +708,8 @@ import 'compiled/jquery.rails_flash_notifications'
         $("#module_list").find(".context_module_option").remove();
         $("#context_modules .context_module").each(function() {
           var $this = $(this);
-          var data = $this.find(".header").getTemplateData({textValues: ['name']});
-          data.id = $this.find(".header").attr('id');
+          var data = $this.find(".sm-header").getTemplateData({textValues: ['name']});
+          data.id = $this.find(".sm-header").attr('id');
           $this.find('.name').attr('title', data.name);
           var $option = $(document.createElement('option'));
           $option.val(data.id);
@@ -1021,17 +1020,16 @@ import 'compiled/jquery.rails_flash_notifications'
       data.context_module.unlock_at = $.datetimeString(data.context_module.unlock_at);
       var $module = $("#context_module_" + data.context_module.id);
       $module.attr('aria-label', data.context_module.name);
-      $module.find(".header").fillTemplateData({
+      $module.find(".sm-header").fillTemplateData({
         data: data.context_module,
         hrefValues: ['id']
       });
 
-      $module.find('.header').attr('id', data.context_module.id);
+      $module.find('.sm-header').attr('id', data.context_module.id);
       $module.find(".footer").fillTemplateData({
         data: data.context_module,
         hrefValues: ['id']
       });
-
       $module.find(".unlock_details").showIf(data.context_module.unlock_at && Date.parse(data.context_module.unlock_at) > new Date());
       updatePrerequisites($module, data.context_module.prerequisites);
 
@@ -1053,12 +1051,12 @@ import 'compiled/jquery.rails_flash_notifications'
         .find('.criterion').removeClass('defined');
 
       // Hack. Removing the class here only to re-add it a few lines later if needed.
-      $module.find('.ig-row').removeClass('with-completion-requirements');
+      $module.find('.sm-ig-row').removeClass('with-completion-requirements');
       for(var idx in data.context_module.completion_requirements) {
         var req = data.context_module.completion_requirements[idx];
         req.criterion_type = req.type;
         var $item = $module.find("#context_module_item_" + req.id);
-        $item.find('.ig-row').addClass('with-completion-requirements');
+        $item.find('.sm-ig-row').addClass('with-completion-requirements');
         $item.find(".criterion").fillTemplateData({data: req});
         $item.find(".completion_requirement").fillTemplateData({data: req});
         $item.find(".criterion").addClass('defined');
@@ -1111,28 +1109,29 @@ import 'compiled/jquery.rails_flash_notifications'
         $module.loadingImage('remove');
         $module.attr('id', 'context_module_' + data.context_module.id);
         setupContentIds($module, data.context_module.id);
-
         // Set this module up with correct data attributes
         $module.data('moduleId', data.context_module.id);
         $module.data('module-url', "/courses/" + data.context_module.context_id + "/modules/" + data.context_module.id + "items?include[]=content_details");
         $module.data('workflow-state', data.context_module.workflow_state);
+
         if(data.context_module.workflow_state == "unpublished"){
           $module.find('.workflow-state-action').text("Publish");
-          $module.find('.workflow-state-icon').addClass('publish-module-link')
-                                              .removeClass('unpublish-module-link');
+          $module.find('.workflow-state-icon').addClass('publish-module-link').removeClass('unpublish-module-link');
           $module.addClass('unpublished_module');
         }
 
         $("#no_context_modules_message").slideUp();
         var $publishIcon = $module.find('.publish-icon');
         // new module, setup publish icon and other stuff
+
         if (!$publishIcon.data('id')) {
           var fixLink = function(locator, attribute) {
               var el = $module.find(locator);
               el.attr(attribute, el.attr(attribute).replace('{{ id }}', data.context_module.id));
           }
-          fixLink('span.collapse_module_link', 'href');
-          fixLink('span.expand_module_link', 'href');
+
+          fixLink('div.collapse_module_link', 'href');
+          fixLink('div.expand_module_link', 'href');
           fixLink('.reorder_items_url', 'href');
           fixLink('.add_module_item_link', 'rel');
           fixLink('.add_module_item_link', 'rel');
@@ -1514,8 +1513,9 @@ import 'compiled/jquery.rails_flash_notifications'
         });
         return;
       }
+
       if(INST && INST.selectContentDialog) {
-        var id = $(this).parents(".context_module").find(".header").attr("id");
+        var id = $(this).parents(".context_module").find(".sm-header").attr("id");
         var name = $(this).parents(".context_module").find(".name").attr("title");
         var options = {for_modules: true};
         options.select_button_text = I18n.t('buttons.add_item', "Add Item");
@@ -1708,7 +1708,7 @@ import 'compiled/jquery.rails_flash_notifications'
 
         var props = {
           model: file,
-          togglePublishClassOn: $el.parents('.ig-row')[0],
+          togglePublishClassOn: $el.parents('.sm-ig-row')[0],
           userCanManageFilesForContext: ENV.MODULE_FILE_PERMISSIONS.manage_files,
           usageRightsRequiredForContext: ENV.MODULE_FILE_PERMISSIONS.usage_rights_required,
           fileName: file.displayName()
@@ -1740,12 +1740,12 @@ import 'compiled/jquery.rails_flash_notifications'
 
 
       var view = new PublishIconView(viewOptions);
-      var row = $el.closest('.ig-row');
+      var row = $el.closest('.sm-ig-row');
 
       if (data.published) { row.addClass('ig-published'); }
       // TODO: need to go find this item in other modules and update their state
       model.on('change:published', function() {
-        view.$el.closest('.ig-row').toggleClass('ig-published', model.get('published'));
+        view.$el.closest('.sm-ig-row').toggleClass('ig-published', model.get('published'));
         view.render();
       });
       view.render();
@@ -1881,7 +1881,7 @@ import 'compiled/jquery.rails_flash_notifications'
 
     if (ENV.IS_STUDENT) {
       $('.context_module').addClass('student-view');
-      $('.context_module_item .ig-row').addClass('student-view');
+      $('.context_module_item .sm-ig-row').addClass('student-view');
 
       var $context_module_subheaders = $('.context_module_sub_header');
 
@@ -2171,7 +2171,8 @@ import 'compiled/jquery.rails_flash_notifications'
     var collapsedModules = ENV.COLLAPSED_MODULES;
     var currentModules = ENV.CURRENT_MODULES;
     var workflow_modules = ENV.WORKFLOW_MODULES;
-    if(currentModules.length < 1){
+
+    if(currentModules && currentModules.length < 1){
       var new_module = workflow_modules.find(function (flow) {
         return flow[1] != "completed" ;
       });
