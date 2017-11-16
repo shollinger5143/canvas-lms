@@ -1,4 +1,4 @@
-#
+=#
 # Copyright (C) 2011 - present Instructure, Inc.
 #
 # This file is part of Canvas.
@@ -1302,7 +1302,7 @@ CanvasRails::Application.routes.draw do
 
     scope(controller: :accounts) do
       get 'accounts', action: :index, as: :accounts
-      post 'accounts', action: :create
+      #post 'accounts', action: :create
       get 'course_accounts', :action => :course_accounts, :as => :course_accounts
       get 'accounts/:id', action: :show, as: :account
       put 'accounts/:id', action: :update
@@ -1314,6 +1314,7 @@ CanvasRails::Application.routes.draw do
 
     scope(controller: :sub_accounts) do
       post 'accounts/:account_id/sub_accounts', action: :create
+      post 'accounts', action: :create_tenant
     end
 
     scope(controller: :role_overrides) do

@@ -138,6 +138,35 @@ class SubAccountsController < ApplicationController
     end
   end
 
+  def create_tenant
+    if params[:account][:parent_account_id]
+      parent_id = params[:account].delete(:parent_account_id)
+    else
+      parent_id = params[:account_id]
+    end
+    @parent_account = subaccount_or_self(parent_id)
+    return unless authorized_action(@parent_account, @current_user, :manage_account_settings)
+
+    @sub_account = @parent_account.sub_accounts.build(account_params)
+    @sub_account.root_account = @context.root_account
+    if params[:account][:sis_account_id]
+      can_manage_sis = @account.grants_right?(@current_user, :manage_sis)
+      if can_manage_sis
+        @sub_account.sis_source_id = params[:account][:sis_account_id]
+      else
+        return render json: { message: I18n.t("user not authorized to manage SIS data - account[sis_account_id]") }, status: 401
+      end
+    end
+    @sub_account.parent_account_id = nil 
+    @sub_account.root_account_id = nil
+    if @sub_account.save
+      render :json => account_json(@sub_account, @current_user, session, [])
+    else
+      render :json => @sub_account.errors
+    end
+  end
+
+
   def update
     @sub_account = subaccount_or_self(params[:id])
     params[:account].delete(:parent_account_id)
