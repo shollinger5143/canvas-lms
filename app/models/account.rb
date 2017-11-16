@@ -763,9 +763,20 @@ class Account < ActiveRecord::Base
   end
 
   def account_chain_loop
+    return if self.parent_account_id.nil? && self.root_account_id.nil?
     # this record hasn't been saved to the db yet, so if the the chain includes
     # this account, it won't point to the new parent yet, and should still be
     # valid
+=begin
+
+    #accounts.rb: validate :account_chain_loop, :if => :parent_account_id_changed?
+  
+    zap101 = Account.first.sub_accounts.last
+    zap101.parent_account_id = nil
+    zap101.root_account_id = nil
+    zap101.save
+    
+=end
     if self.parent_account.account_chain.include?(self)
       errors.add(:parent_account_id,
                  "Setting account #{self.sis_source_id || self.id}'s parent to #{self.parent_account.sis_source_id || self.parent_account_id} would create a loop")

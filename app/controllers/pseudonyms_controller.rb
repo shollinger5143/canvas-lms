@@ -389,6 +389,7 @@ class PseudonymsController < ApplicationController
 
     # give a 400 instead of a 401 if it doesn't make sense to change the password
     if params[:pseudonym].key?(:password) && !@pseudonym.passwordable?
+      byebug
       @pseudonym.errors.add(:password, 'password can only be set for Canvas authentication')
       respond_to do |format|
         format.html { render(params[:action] == 'edit' ? :edit : :new) }

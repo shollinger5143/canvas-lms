@@ -24,6 +24,7 @@ class SubAccountsController < ApplicationController
   # authorized to act on all its sub-accounts too.
 
   def sub_accounts_of(account, current_depth = 0)
+    
     account_data = @accounts[account.id] = { :account => account, :course_count => 0}
     sub_accounts = account.sub_accounts.active.order(Account.best_unicode_collation_key('name')).limit(101) unless current_depth == 2
     sub_account_ids = (sub_accounts || []).map(&:id)
@@ -120,7 +121,6 @@ class SubAccountsController < ApplicationController
     end
     @parent_account = subaccount_or_self(parent_id)
     return unless authorized_action(@parent_account, @current_user, :manage_account_settings)
-
     @sub_account = @parent_account.sub_accounts.build(account_params)
     @sub_account.root_account = @context.root_account
     if params[:account][:sis_account_id]
