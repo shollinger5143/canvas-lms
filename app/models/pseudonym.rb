@@ -382,7 +382,6 @@ class Pseudonym < ActiveRecord::Base
   end
 
   def passwordable?
-    byebug
     authentication_provider.is_a?(AccountAuthorizationConfig::Canvas) ||
       (!authentication_provider && account.canvas_authentication?)
   end
