@@ -1314,7 +1314,6 @@ CanvasRails::Application.routes.draw do
 
     scope(controller: :sub_accounts) do
       post 'accounts/:account_id/sub_accounts', action: :create
-      post 'accounts/:account_id/tenants', action: :create
     end
 
     scope(controller: :role_overrides) do
