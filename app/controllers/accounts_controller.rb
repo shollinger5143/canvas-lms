@@ -154,21 +154,14 @@ class AccountsController < ApplicationController
     Account.default.enable_canvas_authentication
     Account.site_admin.enable_canvas_authentication
 
-    p "==========================="
-    p Account.site_admin.account_users.where(user_id: @current_user, role_id: Role.get_built_in_role('AccountAdmin')).first_or_create!
-    p Account.default.account_users.where(user_id: @current_user, role_id: Role.get_built_in_role('AccountAdmin')).first_or_create!
-    p "==========================="
-    
     @account = Account.new
     @account.name = account_params[:name]
 
     if @account.save
-
       render :json => account_json(@account, @current_user, session, [])
     else
       render :json => @account.errors
     end
-
   end
 
   # @API List accounts for course admins
