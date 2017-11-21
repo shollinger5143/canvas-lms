@@ -28,9 +28,6 @@
 <%= t(:no_accounts_message, "No Accounts") if @accounts.empty? %>
 <ul class="context_list">
   <% @accounts.each do |account| %>
-  	<%
-  		p account
-  	%>
     <li>
       <%= link_to account.name, url_for(account) %>
     </li>
