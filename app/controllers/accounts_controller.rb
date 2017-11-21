@@ -158,6 +158,9 @@ class AccountsController < ApplicationController
     @account.name = account_params[:name]
 
     if @account.save
+      admin = @account.account_users.where(user_id: @current_user.id, role_id: 1).first_or_initialize
+      admin.workflow_state = 'active'
+      admin.save
       render :json => account_json(@account, @current_user, session, [])
     else
       render :json => @account.errors
