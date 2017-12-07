@@ -824,10 +824,8 @@ module ApplicationHelper
   def agree_to_terms
     # may be overridden by a plugin
     @agree_to_terms ||
-    t("I agree to the *terms of use*.",
-      wrapper: {
-        '*' => link_to('\1', "#", class: 'terms_of_service_link'),
-      })
+    t("I agree to the end user license agreement.",
+    )
   end
 
   def dashboard_url(opts={})

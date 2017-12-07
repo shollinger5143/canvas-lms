@@ -104,6 +104,7 @@ import MovementUtils from './MovementUtils'
     render: function () {
       const Component = (this.props.reorderingEnabled) ? DraggableDashboardCard : DashboardCard;
       const cards = this.state.courseCards.map((card, index) => {
+
         const position = (card.position != null) ? card.position : this.getOriginalIndex.bind(this, card.assetString)
         return (
           <Component

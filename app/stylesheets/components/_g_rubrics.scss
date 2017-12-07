@@ -54,7 +54,7 @@
       clear: both;
     }
     label[for=rubric-title] {
-      font-weight: bold;
+      font-weight: 500;
     }
     tr.criterion .container .add_rating_link {
       position: absolute;
@@ -109,7 +109,8 @@
     border-left: 1px solid $ic-border-color;
     border-right: 1px solid $ic-border-color;
     padding: 5px;
-    font-weight: bold;
+    margin-right: 1px;
+    font-weight: 500;
   }
   .has-assessments-warning {
     font-size: 0.8em;
@@ -278,7 +279,7 @@
       }
       .long_description_holder {
         font-size: 0.8em;
-        font-weight: bold;
+        font-weight: 500;
         &.empty {
           font-weight: normal;
           display: block;

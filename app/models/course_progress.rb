@@ -78,7 +78,8 @@ class CourseProgress
 
   def requirements
     # e.g. [{id: 1, type: 'must_view'}, {id: 2, type: 'must_view'}]
-    @_requirements ||= modules.flat_map { |m| m.completion_requirements_visible_to(@user, :is_teacher => false) }.uniq
+    @_requirements ||= modules.flat_map { |m| m.completion_requirements_visible_to(@user, :is_teacher => false, :assignment_visibilities => true, :discussion_visibilities => true, :page_visibilities => true, :quiz_visibilities => true ) }.uniq
+
   end
 
   def requirement_count

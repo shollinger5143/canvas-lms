@@ -40,7 +40,6 @@
     :wiki_page_menu => WikiPage
   }
 %>
-
 <li
   id="context_module_item_<%= module_item ? module_item.id : "blank" %>"
   style="<%= hidden unless module_item %>"
@@ -56,7 +55,7 @@
     <%= 'dupeable' if module_item&.duplicate_able? %>
   "
 >
-  <div class="ig-row <%= 'with-completion-requirements' if criterion %> <%= 'ig-published' if module_item && module_item.published? %> <%= 'student-view' if @is_student %>">
+  <div class="sm-ig-row sm-activity-row context_module_sub_header_expander <%= 'with-completion-requirements' if criterion %> <%= 'ig-published' if module_item && module_item.published? %> <%= 'student-view' if @is_student %>"  href="<%= context_url(@context, :context_url) %>/modules/items/<%= module_item ? module_item.id : "{{ id }}" %>">
     <a
       aria-label='<%= module_item && module_item.title %>'
       tabindex="-1"
@@ -64,7 +63,9 @@
       href="<%= context_url(@context, :context_url) %>/modules/items/<%= module_item ? module_item.id : "{{ id }}" %>">
       <%= module_item && module_item.title %>
     </a>
-
+    <span class="for-nvda">
+      <%= module_item && module_item.title %>    
+    </span>
     <% if editable || module_item.nil? %>
     <div aria-hidden="true" class="ig-handle">
       <span
@@ -74,6 +75,9 @@
         <i class="icon-drag-handle" aria-hidden="true"></i>
       </span>
     </div>
+    <% end %>
+    <% if module_item && module_item.content_type_class == 'context_module_sub_header' %>
+        <i class="context_module_sub_header_expander_<%= module_item ? module_item.id : "blank" %> icon-arrow-open-right sm-unit-dropdown-icon"></i>
     <% end %>
 
     <span class="type_icon" title="<%= module_item_translated_content_type(module_item) %>">
@@ -195,7 +199,7 @@
       </div>
     </div>
     <% if !editable %>
-      <div class="module-item-status-icon"></div> <%# going to set this in JS-land, not here %>
+      <div class="module-item-status-icon" style="display: none"></div> <%# going to set this in JS-land, not here %>
     <% end %>
     <% if editable || module_item.nil? %>
       <div class="ig-admin">

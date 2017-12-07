@@ -25,6 +25,8 @@
 .ic-Layout-contentMain,
 .conversations {
   height: 100%;
+  margin-top: 0px;
+  box-sizing: border-box;
 }
 
 .ic-Layout-wrapper {
@@ -33,7 +35,7 @@
 
 .ic-Layout-columns {
   position: absolute;
-  top: 0; bottom: 0;
+  top: 72px; bottom: 0;
   margin-bottom: 0;
   display: none;
   width: 100%;
@@ -278,8 +280,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    @include fontSize(14px);
-    font-weight: bold;
+    @include fontSize(13px);
+    font-weight: 500;
     margin: 0;
     color: $ic-color-dark;
   }
@@ -316,6 +318,18 @@
     border-radius: 4px;
     text-shadow: none;
   }
+}
+h2.subject {
+  font-weight: 500;
+}
+
+.message-full-participants {
+  display: none;
+}
+
+.message-summarized-participants:focus, .message-full-participants:focus {
+  outline: 0;
+}
 
   .select-checkbox {
     position: relative;
@@ -407,7 +421,7 @@
     color: #bbbbbb;
     display: block;
     @include fontSize(20px);
-    font-weight: bold;
+    font-weight: 500;
     margin-top: 5%;
     text-align: center;
 

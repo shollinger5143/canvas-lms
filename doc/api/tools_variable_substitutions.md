@@ -136,6 +136,7 @@ with the content item launch.
 ```
 "this text was selected by the user"
 ```
+
 ## com.instructure.PostMessageToken
 A token that can be used for frontend communication between an LTI tool
 and Canvas via the Window.postMessage API.

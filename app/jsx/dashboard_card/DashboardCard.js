@@ -23,6 +23,9 @@ import I18n from 'i18n!dashcards'
 import DashboardCardAction from './DashboardCardAction'
 import CourseActivitySummaryStore from './CourseActivitySummaryStore'
 import DashboardCardMenu from './DashboardCardMenu'
+import CourseProgressStore from './CourseProgressStore'
+import CourseGradesStore from './CourseGradesStore'
+import DashboardCardMovementMenu from './DashboardCardMovementMenu'
 
 export default class DashboardCard extends Component {
 
@@ -75,7 +78,9 @@ export default class DashboardCard extends Component {
 
     this.state = _.extend(
       { nicknameInfo: this.nicknameInfo(props.shortName, props.originalName, props.id) },
-      CourseActivitySummaryStore.getStateForCourse(props.id)
+      CourseActivitySummaryStore.getStateForCourse(props.id),
+      CourseProgressStore.getStateForCourse(props.id),
+      CourseGradesStore.getStateForCourse(props.id)
     )
   }
 
@@ -85,11 +90,15 @@ export default class DashboardCard extends Component {
 
   componentDidMount () {
     CourseActivitySummaryStore.addChangeListener(this.handleStoreChange)
+    CourseProgressStore.addChangeListener(this.handleStoreChange)
+    CourseGradesStore.addChangeListener(this.handleStoreChange)
     this.parentNode = this.cardDiv
   }
 
   componentWillUnmount () {
     CourseActivitySummaryStore.removeChangeListener(this.handleStoreChange)
+    CourseProgressStore.removeChangeListener(this.handleStoreChange)
+    CourseGradesStore.removeChangeListener(this.handleStoreChange)
   }
 
   // ===============
@@ -109,9 +118,17 @@ export default class DashboardCard extends Component {
     this.setState({ nicknameInfo: this.nicknameInfo(nickname, this.props.originalName, this.props.id) })
   }
 
+
+
   handleStoreChange = () => {
     this.setState(
       CourseActivitySummaryStore.getStateForCourse(this.props.id)
+    );
+    this.setState(
+      CourseProgressStore.getStateForCourse(this.props.id)
+    );
+    this.setState(
+      CourseGradesStore.getStateForCourse(this.props.id)
     );
   }
 
@@ -289,6 +306,14 @@ export default class DashboardCard extends Component {
   }
 
   render () {
+    let progress = this.state.progress || {};
+    var required = progress.requirement_count || 1;
+    var completed = progress.requirement_completed_count || 0;
+    var currentProgress = ((completed / required) * 100) + "%";
+    let grades = this.state.grades || {};
+    var current_score = (!grades.computed_current_score) ?  "-" : grades.computed_current_score + "%";
+    var current_grade = grades.computed_current_grade;
+
     const dashboardCard = (
       <div
         className="ic-DashboardCard"
@@ -307,11 +332,7 @@ export default class DashboardCard extends Component {
           {this.renderHeaderHero()}
           <a href={this.props.href} className="ic-DashboardCard__link">
             <div className="ic-DashboardCard__header_content">
-              <h2 className="ic-DashboardCard__header-title ellipsis" title={this.props.originalName}>
-                <span style={{color: this.props.backgroundColor}}>
-                  {this.state.nicknameInfo.nickname}
-                </span>
-              </h2>
+              <p>Fix conflict bug</p>
               <div
                 className="ic-DashboardCard__header-subtitle ellipsis"
                 title={this.props.courseCode}
@@ -325,6 +346,28 @@ export default class DashboardCard extends Component {
                 {(this.props.term) ? this.props.term : null}
               </div>
             </div>
+
+            <div className="sm-DashboardCard__course_grade" style={{borderColor: this.props.backgroundColor}}>
+              { (current_grade)? current_grade : current_score }
+            </div>
+            <div
+              className="ic-DashboardCard__header_content"
+              style={{height: (this.props.term ? '75px' : '65px')}}
+            >
+              <p className="ic-DashboardCard__header-subtitle ellipsis" title={this.props.courseCode}>{this.props.courseCode}</p>
+              <h2 className="ic-DashboardCard__header-title ellipsis" title={this.props.originalName}>
+                <span style={{color: this.props.backgroundColor}}>
+                  {this.state.nicknameInfo.nickname}
+                </span>
+              </h2>
+              {
+                this.props.term ? (
+                  <p className="ic-DashboardCard__header-term ellipsis" title={this.props.term}>
+                    {this.props.term}
+                  </p>
+                ) : null
+              }
+            </div>
           </a>
           { this.renderHeaderButton() }
         </div>
@@ -334,6 +377,10 @@ export default class DashboardCard extends Component {
         >
           { this.linksForCard() }
         </nav>
+        <div className="sm-DashboardCard__progress-container">
+          <div className="sm-DashboardCard__progress-container_progress-meter" style={{width: currentProgress, backgroundColor: this.props.backgroundColor}}/>
+        </div>
+        { this.colorPickerIfEditing() }
       </div>
     );
 
@@ -341,7 +388,6 @@ export default class DashboardCard extends Component {
       const { connectDragSource, connectDropTarget } = this.props;
       return connectDragSource(connectDropTarget(dashboardCard));
     }
-
     return dashboardCard;
   }
 }

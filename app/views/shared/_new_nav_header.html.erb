@@ -28,31 +28,6 @@
         </div>
       <% end %>
         <ul id="menu" class="ic-app-header__menu-list">
-          <% if @current_user %>
-            <li class="menu-item ic-app-header__menu-list-item <%= ' ic-app-header__menu-list-item--active' if active_path?('/profile') %>">
-              <a id="global_nav_profile_link" href="/profile" class="ic-app-header__menu-list-link">
-                <div class="menu-item-icon-container" aria-hidden="true">
-                  <div class="ic-avatar <% if @real_current_user && @real_current_user != @current_user %>ic-avatar--fake-student<% end %>">
-                    <img src="<%= @current_user.try { |usr| avatar_image_attrs(usr).first } %>" alt="<%= @current_user.short_name %>" />
-                  </div>
-                </div>
-                <div class="menu-item__text">
-                  <%= t('Account') %>
-                </div>
-              </a>
-            </li>
-          <% else %>
-            <li class="menu-item ic-app-header__menu-list-item">
-              <a id="global_nav_login_link" href="/login" class="ic-app-header__menu-list-link">
-                <div class="menu-item-icon-container" aria-hidden="true">
-                  <%= render(:partial => "shared/svg/svg_login_new_styles.svg") %>
-                </div>
-                <div class="menu-item__text">
-                  <%= t('Login') %>
-                </div>
-              </a>
-            </li>
-          <% end %>
           <% if @current_user && @current_user.adminable_accounts.count > 0 %>
             <li class="menu-item ic-app-header__menu-list-item <%= ' ic-app-header__menu-list-item--active' if active_path?('/accounts') %>">
               <a id="global_nav_accounts_link" href="/accounts" class="ic-app-header__menu-list-link">
@@ -65,18 +40,18 @@
               </a>
             </li>
           <% end %>
-          <li class="ic-app-header__menu-list-item <%= ' ic-app-header__menu-list-item--active' if current_page?(dashboard_url) %>">
-            <a id="global_nav_dashboard_link" href="<%= dashboard_url %>" class="ic-app-header__menu-list-link">
-              <div class="menu-item-icon-container" aria-hidden="true">
-                  <%= svg_icon :dashboard %>
-              </div>
-              <div class="menu-item__text"><%= t('Dashboard') %></div>
-            </a>
-          </li>
+          <li class="ic-app-header__menu-list-item <%= ' ic-app-header__menu-list-item--active' if current_page?(dashboard_url) %>">		
+            <a id="global_nav_dashboard_link" href="<%= dashboard_url %>" class="ic-app-header__menu-list-link">		
+              <div class="menu-item-icon-container" aria-hidden="true">		
+                  <%= svg_icon :sm_dashboard %>		
+              </div>		
+              <div class="menu-item__text"><%= t('Dashboard') %></div>		
+            </a>		
+         </li>
           <li class="menu-item ic-app-header__menu-list-item <%= 'ic-app-header__menu-list-item--active' if active_path?('/courses') %>">
             <a id="global_nav_courses_link" href="<%= courses_path %>" class="ic-app-header__menu-list-link">
               <div class="menu-item-icon-container" aria-hidden="true">
-                <%= svg_icon :courses_new_styles %>
+                <%= svg_icon :sm_courses %>
               </div>
               <div class="menu-item__text">
                 <%= t('Courses') %>
@@ -98,7 +73,7 @@
           <li class="menu-item ic-app-header__menu-list-item <%= ' ic-app-header__menu-list-item--active' if active_path?('/calendar') %>">
             <a id="global_nav_calendar_link" href="/calendar" class="ic-app-header__menu-list-link">
               <div class="menu-item-icon-container" aria-hidden="true">
-                <%= svg_icon :calendar_new_styles %>
+                <%= svg_icon :sm_calendar %>
               </div>
               <div class="menu-item__text">
                 <%= t('Calendar') %>
@@ -108,7 +83,7 @@
           <li class="menu-item ic-app-header__menu-list-item <%= ' ic-app-header__menu-list-item--active' if active_path?('/conversations') %>">
             <a id="global_nav_conversations_link" href="/conversations" class="ic-app-header__menu-list-link">
               <div class="menu-item-icon-container" aria-hidden="true">
-                <%= svg_icon :inbox %>
+                <%= svg_icon :sm_inbox %>
                 <span class="menu-item__badge" style="display: none">0</span>
               </div>
               <div class="menu-item__text">
@@ -137,22 +112,18 @@
         </ul>
       </div>
       <div class="ic-app-header__secondary-navigation">
-        <ul class="ic-app-header__menu-list">
-          <li class="menu-item ic-app-header__menu-list-item">
-            <button
-              id="primaryNavToggle"
-              class="ic-app-header__menu-list-link ic-app-header__menu-list-link--nav-toggle"
-              aria-label="
-                <% if @current_user.try(:collapse_global_nav?) %><%= t('Expand global navigation') %>
-                <% else %><%= t('Minimize global navigation') %><% end %>"
-              title="
-                <% if @current_user.try(:collapse_global_nav?) %><%= t('Expand global navigation') %>
-                <% else %><%= t('Minimize global navigation') %><% end %>"
-            >
-              <%= svg_icon :navtoggle %>
-            </button>
-          </li>
-        </ul>
+        <% if @current_user %>
+          <ul class="ic-app-header__menu-list">
+            <li class="menu-item ic-app-header__menu-list-item">
+              <a id="global_nav_pendo_feedback_link" href="#feedback" class="ic-app-header__menu-list-link">
+                <div class="menu-item-icon-container" style="-webkit-filter: invert(100%)" aria-hidden="true">
+                    <%= svg_icon :sm_feedback %>
+                </div>
+                <div class="menu-item__text"><%= t('Feedback') %></div>
+              </a>
+            </li>
+          </ul>
+        <%end%>
       </div>
     <div id="global_nav_tray_container"></div>
   </header>

@@ -88,7 +88,7 @@ class HostUrl
       # by default only set it for development. useful so that gravatar can
       # proxy our fallback urls
       host = ENV['CANVAS_CDN_HOST']
-      host ||= "canvas.instructure.com" if Rails.env.development?
+      host ||= "strongmind.com" if Rails.env.development?
       host
     end
 
@@ -97,7 +97,7 @@ class HostUrl
     end
 
     def outgoing_email_default_name
-      @outgoing_email_default_name.presence || I18n.t("#email.default_from_name", "Instructure Canvas")
+      @outgoing_email_default_name.presence || I18n.t("#email.default_from_name", "StrongMind Courseware")
     end
 
     def file_host=(val)

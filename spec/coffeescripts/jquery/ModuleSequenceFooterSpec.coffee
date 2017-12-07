@@ -139,7 +139,11 @@ define [
     }, args)
 
   test 'there is no button when next or prev data is null', ->
-    @server.respondWith "GET", default_course_url, server_200_response(nullButtonData())
+    @server.respondWith "GET",
+                        "/api/v1/courses/42/module_item_sequence?asset_type=Assignment&asset_id=123&frame_external_urls=true",
+                        [
+                          200, { "Content-Type": "application/json" }, JSON.stringify(nullButtonData)
+                        ]
     @$testEl.moduleSequenceFooter({courseID: 42, assetType: 'Assignment', assetID: 123})
     @server.respond()
 
