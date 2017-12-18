@@ -161,9 +161,6 @@ $(() => {
 })
 
 $(document).ready(() => {
-  if (mathml.isMathMLOnPage()) {
-    mathml.loadMathJax('MML_HTMLorMML.js')
-  }
 
   let distractionFree = window.localStorage.getItem("distraction_free");
   let toggleButton = $("#distractionFreeToggle").length === 0

@@ -331,22 +331,6 @@ export default class DashboardCard extends Component {
           </span>
           {this.renderHeaderHero()}
           <a href={this.props.href} className="ic-DashboardCard__link">
-            <div className="ic-DashboardCard__header_content">
-              <p>Fix conflict bug</p>
-              <div
-                className="ic-DashboardCard__header-subtitle ellipsis"
-                title={this.props.courseCode}
-              >
-                {this.props.courseCode}
-              </div>
-              <div
-                className="ic-DashboardCard__header-term ellipsis"
-                title={this.props.term}
-              >
-                {(this.props.term) ? this.props.term : null}
-              </div>
-            </div>
-
             <div className="sm-DashboardCard__course_grade" style={{borderColor: this.props.backgroundColor}}>
               { (current_grade)? current_grade : current_score }
             </div>
@@ -380,7 +364,6 @@ export default class DashboardCard extends Component {
         <div className="sm-DashboardCard__progress-container">
           <div className="sm-DashboardCard__progress-container_progress-meter" style={{width: currentProgress, backgroundColor: this.props.backgroundColor}}/>
         </div>
-        { this.colorPickerIfEditing() }
       </div>
     );
 
@@ -391,3 +374,5 @@ export default class DashboardCard extends Component {
     return dashboardCard;
   }
 }
+
+        // { this.colorPickerIfEditing() }

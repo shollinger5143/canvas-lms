@@ -16,7 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-// @mixin primary-nav-badge-border($border-color) { box-shadow: 0 0 0 2px $border-color; }
+@mixin primary-nav-badge-border($border-color) { box-shadow: 0 0 0 2px $border-color; }
 
 
 /// These are editable variables from the theme editor.
