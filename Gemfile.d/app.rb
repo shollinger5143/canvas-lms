@@ -37,7 +37,8 @@ gem 'authlogic', '3.6.0'
 gem 'active_model-better_errors', '1.6.7', require: 'active_model/better_errors'
 gem 'dynamic_form', '1.1.4', require: false
 gem 'rails-patch-json-encode', '0.0.1'
-gem 'switchman', '1.11.2'
+gem 'switchman', '1.11.4',  github: 'StrongMind/switchman', ref: 'cbb8e64d0e05743f1dbbcaa72644a7e0b703d9ff'
+
   gem 'open4', '1.3.4', require: false
 gem 'switchman-inst-jobs'
 gem 'folio-pagination', '0.0.12', require: 'folio/rails'
