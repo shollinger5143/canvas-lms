@@ -7784,6 +7784,21 @@ strip-json-comments@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
 
+"strongmind-gradebook@git+ssh://git@github.com:StrongMind/strongmind-gradebook.git":
+  version "0.1.0"
+  resolved "git+ssh://git@github.com:StrongMind/strongmind-gradebook.git#046b69986d55cfaf7d9a7a579430275ba94453be"
+  dependencies:
+    history "^4.7.2"
+    react "^16.2.0"
+    react-dom "^16.2.0"
+    react-redux "^5.0.6"
+    react-router-dom "^4.2.2"
+    react-router-redux next
+    react-scripts "1.1.0"
+    redux "^3.7.2"
+    redux-thunk "^2.2.0"
+    sanitize.css "^5.0.0"
+
 strongmind-icons@6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/strongmind-icons/-/strongmind-icons-6.0.1.tgz#7ff6bded95096ad0e4217e2746d3296ac8da9b00"
