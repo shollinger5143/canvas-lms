@@ -7,6 +7,27 @@
           aria-describedby="default_grade_description"
           {{ disabledIf isInPastGradingPeriodAndNotAdmin }}
           />
+<script>
+  var exempt = $('#student_grading_{{assignment.id}}');
+  
+  $('input[type="checkbox"]').change(function(e){
+     exempt.val(getCheckboxValue());
+  });
+
+  function getCheckboxValue(){
+   var exempt = "";
+   $('input[type="checkbox"]').each(function(i,cb){
+       if($(this).is(":checked")){
+           exempt = "EX";
+       }
+       else {
+           exempt = " ";
+        }
+   });
+   return exempt;
+  }
+</script>
+
 {{/if}}
 {{#if assignment_grading_type_is_percent}}
   <span name="{{inputName}}" class="grading_box" id="student_grading_{{assignment.id}}">
