@@ -17,15 +17,15 @@
 
 if ENV.INCOMPLETE_REGISTRATION
   require [
-    'jquery', 
-    'i18n!registration', 
+    'jquery',
+    'i18n!registration',
     'jst/registration/incompleteRegistrationWarning'
   ], ($, I18n, template) ->
 
     $(template(email: ENV.USER_EMAIL)).
       appendTo($('body')).
       dialog
-        title: I18n.t('welcome_to_canvas', 'Welcome to Canvas!')
+        title: I18n.t('welcome_to_canvas', 'Welcome to Courseware!')
         width: 400
         resizable: false
         buttons: [
