@@ -6,12 +6,14 @@ describe 'pipeline service' do
   let(:http_client) { double('http_client', messages_post: nil) }
 
   before do
+    allow(PipelineService::HTTPClient).to receive(:post)
     ENV['SYNCHRONOUS_PIPELINE_JOBS'] = 'true'
     @user = account_admin_user
     @course = Course.create!
     @enrollment = StudentEnrollment.new(valid_enrollment_attributes)
     @enrollment.course = @course
     @enrollment.save!
+
   end
 
   context "Missing configuration" do
@@ -25,17 +27,13 @@ describe 'pipeline service' do
     end
 
     it 'wont raise an error through the api cus its queued' do
-      ENV.delete 'SYNCHRONOUS_PIPELINE_JOBS'
-      expect(PipelineService::Endpoints::Pipeline).to receive(:http_client)
-        .and_return(http_client)
+      PipelineService.queue_mode = 'asynchronous'
+      allow(PipelineService::HTTPClient).to receive(:post)
 
       expect { PipelineService.publish(@enrollment) }.to_not raise_error
     end
 
     it 'calling it directly will raise an error since its not queued' do
-      allow(PipelineService::Endpoints::Pipeline).to receive(:http_client)
-        .and_return(http_client)
-
       expect { PipelineService::Commands::Publish.new(object: @enrollment).call }
         .to raise_error(RuntimeError, 'Missing config')
     end
@@ -53,11 +51,8 @@ describe 'pipeline service' do
 
     end
 
-    it do
-      allow(PipelineService::Endpoints::Pipeline).to receive(:http_client)
-        .and_return(http_client)
-
-      expect(http_client).to receive(:messages_post)
+    it 'posts to the http client' do
+      expect(PipelineService::HTTPClient).to receive(:post)
       ::Assignment.create!(context: @course)
     end
   end
@@ -71,22 +66,16 @@ describe 'pipeline service' do
     end
 
     it do
-      allow(PipelineService::Endpoints::Pipeline).to receive(:http_client)
-        .and_return(http_client)
-
-      expect(http_client).to receive(:messages_post)
+      expect(PipelineService::HTTPClient).to receive(:post)
       @enrollment.update(workflow_state: 'completed')
     end
 
-    # TODO: move this test to the shim
-    xit 'will use the enrollment type with hashes' do
-      # byebug
-      # expect(endpoint).to receive(:new).with(hash_including(object: @enrollment))
-      expect(PipelineService::Endpoints::Pipeline).to receive(:http_client)
-        .and_return(http_client)
-      expect(http_client).to receive(:messages_post)
+    it 'will use the enrollment type with hashes' do
+      # expect(PipelineService::HTTPClient).to receive(:post)
+      expect(endpoint).to receive(:new).with(hash_including(object: @enrollment))
       PipelineService::Commands::Publish.new(
-        object: { id: @enrollment.id }
+        object: { id: @enrollment.id },
+        endpoint: endpoint
       ).call
     end
   end
