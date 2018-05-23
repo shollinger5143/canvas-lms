@@ -2729,6 +2729,7 @@ class Course < ActiveRecord::Base
 
   add_setting :timetable_data, :arbitrary => true
   add_setting :syllabus_master_template_id
+  add_setting :sequence_skip_users
 
   def user_can_manage_own_discussion_posts?(user)
     return true if allow_student_discussion_editing?

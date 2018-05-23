@@ -42,6 +42,7 @@ module Api::V1::Course
     settings[:image_url] = course.image_url
     settings[:image_id] = course.image_id
     settings[:image] = course.image
+    settings[:sequence_skip_users] = course.sequence_skip_users
 
     settings
   end

@@ -1283,7 +1283,8 @@ class CoursesController < ApplicationController
       :restrict_student_past_view,
       :restrict_student_future_view,
       :show_announcements_on_home_page,
-      :home_page_announcement_limit
+      :home_page_announcement_limit,
+      :sequence_skip_users,
     )
     changes = changed_settings(@course.changes, @course.settings, old_settings)
     @course.send_later_if_production_enqueue_args(:touch_content_if_public_visibility_changed,
