@@ -19,6 +19,7 @@ class Canvas::Migration::Worker::CCWorker < Canvas::Migration::Worker::Base
   def perform(cm=nil)
     cm ||= ContentMigration.where(id: migration_id).first
     cm.job_progress.start unless cm.skip_job_progress
+
     begin
       cm.update_conversion_progress(1)
       settings = cm.migration_settings.clone

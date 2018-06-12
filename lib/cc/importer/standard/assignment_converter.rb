@@ -84,7 +84,7 @@ module CC::Importer::Standard
         title, body = get_html_title_and_body(html_doc)
         assignment['description'] = body
       end
-
+      pp meta_doc
       assignment["migration_id"] ||= get_node_att(meta_doc, 'assignment', 'identifier') || meta_doc['identifier']
       assignment["assignment_group_migration_id"] = get_node_val(meta_doc, "assignment_group_identifierref")
       assignment["grading_standard_migration_id"] = get_node_val(meta_doc, "grading_standard_identifierref")

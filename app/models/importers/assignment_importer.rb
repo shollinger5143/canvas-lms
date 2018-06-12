@@ -42,8 +42,14 @@ module Importers
       assignment_records = []
       context = migration.context
 
+      puts  "__________________ migration context ________________"
+
+      puts "I made it here"
+
       Assignment.suspend_callbacks(:update_submissions_later) do
         assignments.each do |assign|
+          puts "i mde it here too"
+
           if migration.import_object?("assignments", assign['migration_id'])
             begin
               assignment_records << import_from_migration(assign, context, migration)
@@ -72,7 +78,6 @@ module Importers
       item ||= Assignment.where(context_type: context.class.to_s, context_id: context, id: hash[:id]).first
       item ||= Assignment.where(context_type: context.class.to_s, context_id: context, migration_id: hash[:migration_id]).first if hash[:migration_id]
       item ||= context.assignments.temp_record #new(:context => context)
-
       item.mark_as_importing!(migration)
       master_migration = migration&.for_master_course_import?  # propagate null dates only for blueprint syncs
 
@@ -164,6 +169,11 @@ module Importers
       # reloaded the quiz's assignment, so we won't know about the changes to the object (in particular,
       # workflow_state) that it did
       item.reload
+      puts " ______________ Item _______________"
+      pp item
+
+      puts "__________ Migration Hash __________"
+      pp hash
 
       rubric = nil
       rubric = context.rubrics.where(migration_id: hash[:rubric_migration_id]).first if hash[:rubric_migration_id]
@@ -249,7 +259,7 @@ module Importers
        :automatic_peer_reviews, :anonymous_peer_reviews,
        :grade_group_students_individually, :allowed_extensions,
        :position, :peer_review_count, :muted, :moderated_grading,
-       :omit_from_final_grade, :intra_group_peer_reviews
+       :omit_from_final_grade, :intra_group_peer_reviews, :max_attempts
       ].each do |prop|
         item.send("#{prop}=", hash[prop]) unless hash[prop].nil?
       end
