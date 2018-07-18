@@ -32,6 +32,7 @@ class LtiApiController < ApplicationController
       raise BasicLTI::BasicOutcomes::InvalidRequest, "Content-Type must be 'application/xml'"
     end
 
+    Rails.logger.info(request.body)
     @xml = Nokogiri::XML.parse(request.body)
 
     lti_response = check_outcome BasicLTI::BasicOutcomes.process_request(@tool, @xml)
