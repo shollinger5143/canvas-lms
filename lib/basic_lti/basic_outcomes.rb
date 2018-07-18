@@ -194,7 +194,7 @@ module BasicLTI
         if self.respond_to?("handle_#{op}", true)
           return self.send("handle_#{op}", tool, course, assignment, user)
         end
-
+        
         false
       end
 

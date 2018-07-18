@@ -1457,6 +1457,7 @@ class Assignment < ActiveRecord::Base
     did_grade = false
     submission.attributes = opts.slice(:excused, :submission_type, :url, :body)
 
+
     unless opts[:provisional]
       submission.grader = grader
       submission.grader_id = opts[:grader_id] if opts.key?(:grader_id)
@@ -1466,6 +1467,7 @@ class Assignment < ActiveRecord::Base
       submission.excused = false if score.present?
       did_grade = true if score.present? || submission.excused?
     end
+
 
     if did_grade
       submission.grade_matches_current_submission = true
@@ -1524,6 +1526,7 @@ class Assignment < ActiveRecord::Base
         end
       end
     end
+
     students.each do |student|
       submission = submissions_hash[student.id]
       if !submission

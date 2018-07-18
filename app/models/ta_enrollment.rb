@@ -20,8 +20,4 @@ class TaEnrollment < Enrollment
   def ta?
     true
   end
-
-  def pipeline_serializer
-    PipelineService::Serializers::Enrollment
-  end
 end

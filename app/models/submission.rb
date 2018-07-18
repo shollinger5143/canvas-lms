@@ -226,10 +226,6 @@ class Submission < ActiveRecord::Base
     conditions
   end
 
-  def pipeline_serializer
-    PipelineService::Serializers::Submission
-  end
-
   # see .needs_grading_conditions
   def needs_grading?(was = false)
     suffix = was ? "_was" : ""
