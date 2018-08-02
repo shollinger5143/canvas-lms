@@ -366,12 +366,23 @@ import './vendor/ui.selectmenu'
                    data: JSON.stringify({"value": "increment"}),
                    dataType: "json",
                    success: function(data) {
-                     $('#add-attempt-feedback')
-                      .hide()
-                      .html('Attempt Added')
-                      .addClass('alert alert-success')
-                      .fadeIn(1200)
-                      .fadeOut(1200)
+                      $.ajax({
+                        type: 'GET',
+                        url: '/users/' + studentID + '/assignments/' + assignmentID + '/settings/',
+                        contentType: "application/json",
+                        dataType: "json",
+                        success: function(data) {
+                          $('#add-attempt-feedback')
+                           .hide()
+                           .html('Attempt Added')
+                           .addClass('alert alert-success')
+                           .fadeIn(1200)
+                           .fadeOut(1200)
+                           $('#max_attempt_count').html(data['max_attempts'])
+                        }
+                      })
+
+
                   },
               });
          })

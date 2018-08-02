@@ -15,7 +15,11 @@ class StudentAssignmentSettingsController < ApplicationController
 
   def index
     render json: SettingsService.get_settings(
-      id: params[:user_id]
+      id: {
+        student_id: params[:user_id],
+        assignment_id: params[:assignment_id]
+      },
+      object: 'student_assignment'
     )
   end
 end
